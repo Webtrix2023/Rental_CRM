@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import React,{useState,useRef} from "react";
 import AsyncSelect from "react-select/async";
 import { useClickOutside } from "./useClickOutside"; 

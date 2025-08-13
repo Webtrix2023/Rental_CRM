@@ -1,6 +1,6 @@
 import {React,useState,useEffect,useRef} from 'react';
 import DynamicTable from '@components/dynamicTables/dynamicTable';
-import { API_BASE_URL } from '../../../../config';
+import { API_BASE_URL } from '@config';
 import DynamicFilter from '@components/filter/DynamicFilter';
 import { fetchJson, useMatchedMenu } from '@utils/fetchJson';
 import { getModuleMetaData } from '@utils/api';

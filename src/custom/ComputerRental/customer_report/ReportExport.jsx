@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { API_BASE_URL } from '../../../config';
+import { API_BASE_URL } from '@config';
 
 export const ReportExport = function ReportExport({ filters, customerId, customerName } ) {
   const formRef = useRef(null);

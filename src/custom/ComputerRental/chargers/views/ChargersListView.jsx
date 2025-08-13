@@ -11,7 +11,7 @@ import { useModuleMetaData } from '@utils/useModuleMetaData';
 import { useChargerCreateStore } from '../store/useChargerCreateStore';
 
 import TableSkeleton from '@components/form-elements/TableSkeleton';
-import { API_BASE_URL } from '../../../../config';
+import { API_BASE_URL } from '@config';
 const ChargersListView = () => {
   const menuId = useMatchedMenu('chargeserialnumber');
   const {metadata,moduleData,c_metadata,definitions,loading,error} = useModuleMetaData(menuId);

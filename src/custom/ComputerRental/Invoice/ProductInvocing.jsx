@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import { Calendar, Loader, CheckSquare, Square, ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import clsx from "clsx";
 import { SmartSelectInput } from "@components/index";
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 import { toast } from "react-toastify";
 // // Replace with your fetch utility or window.fetch
@@ -11,6 +13,8 @@ import { toast } from "react-toastify";
 //   if (!res.ok) throw new Error("Network response was not ok");
 //   return await res.json();
 // };
+const swalObj = withReactContent(Swal);
+
 function SkeletonRow() {
   return (
     <div className="flex items-center py-4 px-4 animate-pulse border rounded-lg mb-2">
@@ -27,24 +31,24 @@ function SkeletonRow() {
 export default function ProductInvocing() {
   // UI state
   const [invoiceDetails, setInvoiceDetails] = useState({
-    customerId : null,
-    invoiceDate : new Date().toISOString().substring(0, 10),
-    billingDate : new Date().toISOString().substring(0, 10),
-    billingPeriod : "Monthly",
-    summary:{},
-    selectedAssets:[],
+    customerId: null,
+    invoiceDate: new Date().toISOString().substring(0, 10),
+    billingDate: new Date().toISOString().substring(0, 10),
+    billingPeriod: "Monthly",
+    summary: {},
+    selectedAssets: [],
   });
   const [assets, setAssets] = useState([]);
   const [selectedAssets, setSelectedAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const handleInputChange = (field, value) => {
-    setInvoiceDetails((prev)=>({
+    setInvoiceDetails((prev) => ({
       ...prev,
       [field]: value,
     }));
     // setCustomerId(value);
   };
-  
+
   // Demo summary stats
   const [summary, setSummary] = useState({
     activeAssets: 0,
@@ -73,7 +77,7 @@ export default function ProductInvocing() {
       return
     }
     setLoading(true);
-    fetchJson(`${API_BASE_URL}/rentalgetAllLines/${invoiceDetails.customerId || 0}`, { method: "POST" ,body : JSON.stringify({billingDate : invoiceDetails.billingDate})})
+    fetchJson(`${API_BASE_URL}/rentalgetAllLines/${invoiceDetails.customerId || 0}`, { method: "POST", body: JSON.stringify({ billingDate: invoiceDetails.billingDate }) })
       .then((res) => {
         setAssets(res.data || []);
         setSelectedAssets([]);
@@ -104,7 +108,7 @@ export default function ProductInvocing() {
   //   console.log('item : ',item);
   //   const lastdate = new Date(item.deliveryDate);
   //   console.log('lastdate : ',lastdate);
-    
+
   //   if (item.last_bill_date && summary.lastInvoice) {
   //     const lastInvoice = new Date(summary.lastInvoice);
   //     if (lastInvoice > lastdate) {
@@ -118,8 +122,8 @@ export default function ProductInvocing() {
   // SELECTED ITEMS
   const isSelected = (itemID) => selectedAssets.some((item) => item.itemID === itemID);
   const toggleSelect = (itemID) => {
-    console.log('itemID',itemID);
-    
+    console.log('itemID', itemID);
+
     const item = assets.find((a) => a.itemID == itemID);
     if (!item) return;
     console.log('item : ', item);
@@ -140,12 +144,12 @@ export default function ProductInvocing() {
   const clearSelection = () => setSelectedAssets([]);
 
   // CALCULATION 
-  console.log('selectedAssets : ',selectedAssets);
+  console.log('selectedAssets : ', selectedAssets);
   const subtotal = selectedAssets
     // .filter((a) => isSelected(a.itemID) && a.row_close !== "y")
     // .filter((a) => isSelected(a.itemID) && (!a.last_bill_date && a.row_close !== "y"))
     .reduce((sum, a) => sum + Number(a.revenue || 0), 0);
-  
+
   const gst = Math.round(subtotal * 0.18);
   const totalAmount = subtotal + gst;
 
@@ -174,28 +178,36 @@ export default function ProductInvocing() {
 
   // Handle save/generate
   const handleGenerateInvoice = async () => {
-
-    if (selectedAssets.length == 0) return ;
-
-    invoiceDetails.selectedAssets = selectedAssets ;
-    invoiceDetails.summary = summary ;
-
-    console.log('Invoice Details : ',invoiceDetails);    
-
-    setLoading(true);
-    const res = await fetchJson(`${API_BASE_URL}/rental/createInvoice`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invoiceDetails),
+    swalObj.fire({
+      title: 'Confirm To Generate Invoice ?',
+      text: 'Once generated, the invoice cannot be edited.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, generate it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        if (selectedAssets.length == 0) return;
+        invoiceDetails.selectedAssets = selectedAssets;
+        invoiceDetails.summary = summary;
+        console.log('Invoice Details : ', invoiceDetails);
+        setLoading(true);
+        const res = await fetchJson(`${API_BASE_URL}/rental/createInvoice`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(invoiceDetails),
+        });
+        setLoading(false);
+        if (res?.flag === "S") {
+          swalObj.fire('Generated!', 'Your invoice has been generated.', 'success');
+          getDeliveries();
+        } else {
+          swalObj.fire('Failed!', `Error while creating invoice ! ${res.status}`, 'error');
+        }
+      }
     });
-    setLoading(false);
-    if(res?.flag === "S"){
-      toast.success(`Invoice Created !`);
-      getDeliveries();
-    }else{
-      toast.error(`Error while creating invoice (${res.status})`);
-    }
   };
+
+  const capitalizeFirst = str => str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 
   return (
     <div className="bg-gray-50 min-h-screen py-4 px-2 sm:px-6">
@@ -206,12 +218,12 @@ export default function ProductInvocing() {
           <div className="text-gray-500 text-sm">Generate monthly billing for rental equipment</div>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 text-sm">
+          {/* <button className="flex items-center bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 text-sm">
             <Loader size={16} className="mr-1" /> Invoice History
-          </button>
-          <button className="flex items-center bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm">
+          </button> */}
+          {/* <button className="flex items-center bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm">
             <Plus size={16} className="mr-1" /> New Invoice
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -222,14 +234,17 @@ export default function ProductInvocing() {
           <SmartSelectInput
             id="customer" label="" value={invoiceDetails.customerId}
             onSelect={(data) => {
-              handleInputChange("customerId",data)}}
-            onObjectSelect={()=>{}}
-            config={{type: 'customer',valueKey:'customer_id',source: 'customer',
-            getLabel: (item) => `${item.name}`,
-            getValue: (item) => item.customer_id,
-            placeholder: 'Select Customer',
-            list:"name,customer_id",
-            allowAddNew: true,preload: true,cache: true,showRecent: true}}
+              handleInputChange("customerId", data)
+            }}
+            onObjectSelect={() => { }}
+            config={{
+              type: 'customer', valueKey: 'customer_id', source: 'customer',
+              getLabel: (item) => `${item.name}`,
+              getValue: (item) => item.customer_id,
+              placeholder: 'Select Customer',
+              list: "name,customer_id",
+              allowAddNew: true, preload: true, cache: true, showRecent: true
+            }}
           />
         </div>
         <div className="flex-1 min-w-[140px]">
@@ -238,7 +253,7 @@ export default function ProductInvocing() {
             <input
               type="date"
               value={invoiceDetails.invoiceDate}
-              onChange={e => handleInputChange("invoiceDate",e.target.value)}
+              onChange={e => handleInputChange("invoiceDate", e.target.value)}
               className="w-full border rounded px-3 py-2 text-gray-700 pr-8 focus:outline-none"
             />
             <Calendar size={16} className="absolute top-2.5 right-2 text-gray-400" />
@@ -250,13 +265,13 @@ export default function ProductInvocing() {
             <input
               type="date"
               value={invoiceDetails.billingDate}
-              onChange={e => handleInputChange("billingDate",e.target.value)}
+              onChange={e => handleInputChange("billingDate", e.target.value)}
               className="w-full border rounded px-3 py-2 text-gray-700 pr-8 focus:outline-none"
             />
             <Calendar size={16} className="absolute top-2.5 right-2 text-gray-400" />
           </div>
         </div>
-        <div className="flex-1 min-w-[140px]">
+        {/* <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold mb-1">Billing Period</label>
           <select
             value={invoiceDetails.billingPeriod}
@@ -267,11 +282,11 @@ export default function ProductInvocing() {
             <option value="Quarterly">Quarterly</option>
             <option value="Yearly">Yearly</option>
           </select>
-        </div>
+        </div> */}
       </div>
 
       {/* Asset Summary */}
-      <div className="bg-white shadow rounded-xl p-4 mb-6 flex flex-wrap gap-4 items-center justify-between">
+      {/* <div className="bg-white shadow rounded-xl p-4 mb-6 flex flex-wrap gap-4 items-center justify-between">
         <div className="flex-1 min-w-[150px]">
           <div className="text-xs text-gray-500 mb-1">Active Assets</div>
           <div className="font-bold text-blue-600">{summary.activeAssets}</div>
@@ -291,12 +306,15 @@ export default function ProductInvocing() {
         <div className="flex-1 min-w-[150px] hidden sm:block text-right text-xs text-gray-400">
           Total Assets: {summary.totalAssets} <span className="ml-4">Last Invoice: {summary.lastInvoice}</span>
         </div>
-      </div>
+      </div> */}
 
       {/* Select Assets */}
       <div className="bg-white shadow rounded-xl p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
-          <div className="font-semibold text-gray-800">Select Assets to Invoice</div>
+          <div className="font-semibold text-gray-800">
+            Select Assets to Invoice
+            <span className="font-semibold text-sm ml-1.5 text-blue-500">( Total Assets {summary.totalAssets} )</span>
+          </div>
           <div className="text-xs">
             <button onClick={selectAll} className="text-blue-500 mr-4 hover:underline">Select All</button>
             <button onClick={clearSelection} className="text-gray-400 hover:text-red-500 hover:underline">Clear Selection</button>
@@ -325,7 +343,7 @@ export default function ProductInvocing() {
                     "flex items-center border p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer",
                     (a.row_close === "y" && a.last_bill_date) && "opacity-50 pointer-events-none"
                   )}
-                  onClick={() => (!a.last_bill_date || compareDate(invoiceDetails.invoiceDate, a.last_bill_date) ) && toggleSelect(a.itemID)}
+                  onClick={() => (!a.last_bill_date || compareDate(invoiceDetails.invoiceDate, a.last_bill_date)) && toggleSelect(a.itemID)}
                   aria-disabled={a.row_close === "y" && a.last_bill_date}
                 >
                   <div className="mr-3">
@@ -336,10 +354,13 @@ export default function ProductInvocing() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900">{a.invoiceLineNarr || "Product"}</div>
+                    <div className="font-medium text-gray-600">{a.invoiceLineNarr || "Product"}
+                      {a.billing_type && <span className="font-normal text-sm ml-1.5">({capitalizeFirst(a.billing_type) || ''})</span>}
+                    </div>
                     <div className="text-xs text-gray-500">
                       Delivered: {a.deliveryDate ? new Date(a.deliveryDate).toLocaleDateString('en-IN') : "-"}
                       {a.challan_number && <> | Challan: {a.challan_number}</>}
+                      {a.last_bill_date && <> | Last Invoice: {a.last_bill_date}</>}
                       {a.returnDate && <span className="text-red-400 ml-2">(Returned)</span>}
                     </div>
                   </div>
@@ -359,46 +380,46 @@ export default function ProductInvocing() {
 
       {/* Invoice Summary */}
       <div className="bg-white shadow rounded-xl p-4 mb-10">
-      <div className="flex flex-col md:flex-row gap-6 mb-6">
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex flex-col md:flex-row gap-6 mb-6">
+          {/* <div className="flex-1 min-w-[200px]">
           <div className="font-semibold mb-2 text-gray-800">Billing Details</div>
           <div className="text-xs mb-1">Billing Period: <span className="text-gray-700">{periodStart} - {periodEnd}</span></div>
           <div className="text-xs mb-1">Total Days: <span className="text-gray-700">{summary.billingDays}</span></div>
           <div className="text-xs mb-1">Selected Assets: <span className="text-gray-700">{selectedAssets.length}</span></div>
           <div className="text-xs mb-1">Invoice Date: <span className="text-gray-700">{invoiceDetails.invoiceDate && new Date(invoiceDetails.invoiceDate).toLocaleDateString()}</span></div>
+        </div> */}
+          <div className="flex-1 min-w-[200px]">
+            <div className="font-semibold mb-2 text-gray-800">Amount Calculation</div>
+            <div className="text-xs mb-1 flex justify-between">Subtotal: <span className="text-gray-700">₹{subtotal}</span></div>
+            <div className="text-xs mb-1 flex justify-between">GST (18%): <span className="text-gray-700">₹{gst}</span></div>
+            <div className="text-xs mb-1 flex justify-between">Other Charges: <span className="text-gray-700">₹0</span></div>
+            <div className="text-lg font-bold mt-2 flex justify-between">Total Amount: <span className="text-green-600">₹{totalAmount}</span></div>
+          </div>
         </div>
-        <div className="flex-1 min-w-[200px]">
-          <div className="font-semibold mb-2 text-gray-800">Amount Calculation</div>
-          <div className="text-xs mb-1 flex justify-between">Subtotal: <span className="text-gray-700">₹{subtotal}</span></div>
-          <div className="text-xs mb-1 flex justify-between">GST (18%): <span className="text-gray-700">₹{gst}</span></div>
-          <div className="text-xs mb-1 flex justify-between">Other Charges: <span className="text-gray-700">₹0</span></div>
-          <div className="text-lg font-bold mt-2 flex justify-between">Total Amount: <span className="text-green-600">₹{totalAmount}</span></div>
-        </div>
-      </div>
-      <div className="flex bg-white flex-col sm:flex-row justify-between items-center gap-4">
-        <div className="text-xs text-gray-400 flex-1">
-          <span>All billing calculations are based on actual usage days</span>
-        </div>
-        <div className="flex gap-2">
-          <button
+        <div className="flex bg-white flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="text-xs text-gray-400 flex-1">
+            <span>All billing calculations are based on actual usage days</span>
+          </div>
+          <div className="flex gap-2">
+            {/* <button
             className="flex items-center bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 text-sm"
             disabled={selectedAssets.length === 0}
             onClick={() => window.alert("Preview Invoice is not implemented in this demo.")}
           >
             <Loader size={16} className="mr-1" /> Preview Invoice
-          </button>
-          <button
-            className="flex items-center bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm disabled:bg-gray-200 disabled:text-gray-500"
-            disabled={selectedAssets.length === 0}
-            onClick={handleGenerateInvoice}
-          >
-            <Plus size={16} className="mr-1" /> Generate Invoice
-          </button>
+          </button> */}
+            <button
+              className="flex items-center bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm disabled:bg-gray-200 disabled:text-gray-500"
+              disabled={selectedAssets.length === 0}
+              onClick={handleGenerateInvoice}
+            >
+              <Plus size={16} className="mr-1" /> Generate Invoice
+            </button>
+          </div>
         </div>
       </div>
-      </div>
       {/* Footer Actions */}
-      
+
     </div>
   );
 }

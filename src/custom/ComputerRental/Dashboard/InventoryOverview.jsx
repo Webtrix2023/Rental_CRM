@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import InventoryPieChart from "./charts/InventoryPieChart";
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 
 export default function InventoryOverview() {

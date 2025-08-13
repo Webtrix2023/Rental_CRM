@@ -1,5 +1,5 @@
 import { SmartSelectInput } from "@components/index";
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 import { ReportExport } from "./ReportExport";
 import { ActionPopup } from "./ActionPopup";
@@ -50,6 +50,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
     dateTo: "",
   });
   const [page, setPage] = useState(1);
+  const [records_per_page, setRecordsPerPage] = useState(10);
   const formRef = useRef(null);
 
   const handleInputChange = (field, value) => {
@@ -73,18 +74,14 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
     }
     );
     const data = await res;
-
+    setRecordsPerPage(Number(data.record_per_page) || 10);
     if (data.flag === "S") {
-      console.log('typeof data.data : ', typeof data.data);
-      console.log('data.data : ', data.data);
-
       const returned = data.data.filter((row) => row.action === "return");
       const delivered = data.data.filter((row) => row.action === "Delivered");
       const replaced = data.data.filter((row) => row.action === "replace");
       const ongoing = delivered.length;
       const ret = returned.length;
       const rep = replaced.length;
-
       const billing =
         delivered.reduce(
           (sum, row) => sum + Number(row.invoiceLineRate || 0),
@@ -144,7 +141,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   const not_replacement = equipments.filter((row) => row.is_replacement === 'n');
 
   const PAGE_SIZE = 5;
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paged = filtered.slice((page - 1) * records_per_page, page * records_per_page);
 
   return (
     <div className="bg-[#f8fafc] min-h-screen p-0">
@@ -349,11 +346,9 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                         </div>}
                     </td>
                     <td className="py-3">
-                      {console.log('row.status : ', row.status)}
                       <StatusPill status={row.status} />
                     </td>
                     <td className="py-3">
-                      {console.log('row.action : ', row.action)}
                       {row.action === "return" ? (
                         <div>
                           <div>{row.return_date || "-"}</div>
@@ -432,11 +427,11 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         {/* Pagination */}
         <div className="flex flex-col md:flex-row items-center justify-between mt-4 text-xs text-gray-500 gap-2">
           <span>
-            Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}-
-            {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} results
+            Showing {Math.min((page - 1) * records_per_page + 1, filtered.length)}-
+            {Math.min(page * records_per_page, filtered.length)} of {filtered.length} results
           </span>
           <div className="flex gap-1">
-            {[...Array(Math.ceil(filtered.length / PAGE_SIZE)).keys()].map((i) => (
+            {[...Array(Math.ceil(filtered.length / records_per_page)).keys()].map((i) => (
               <button
                 key={i}
                 className={`px-2 py-1 rounded ${i + 1 === page

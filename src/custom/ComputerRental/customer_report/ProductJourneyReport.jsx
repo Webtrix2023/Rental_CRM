@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import { Plus ,BadgeQuestionMark ,Truck , ArrowUp ,RotateCcw,Laptop,LaptopMinimal,Smartphone} from "lucide-react";
 import { fetchJson } from "@utils/fetchJson";
 import ProductSearchInput from "../Delivery/ProductSearchInput";

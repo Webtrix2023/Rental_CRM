@@ -3,7 +3,7 @@ import DeliveryChallanItems from "./DeliveryChallanItems";
 import { SmartSelect, SmartSelectInput } from "@components/index";
 import { defaultFormTemplate } from "./API/DeliverySchema";
 import DatePicker from "react-datepicker";
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";

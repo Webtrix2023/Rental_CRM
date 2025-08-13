@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { RotateCcw, ArrowUpDown, ArrowUpFromLine } from "lucide-react";
 import { fetchJson } from "@utils/fetchJson";
 import { SmartSelectInput } from "@components/index";
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import { toast } from "react-toastify";
 import { defaultReplaceModel, defaultUpgradeModel, defaultReturnModel } from "./API/ReportSchema";
 

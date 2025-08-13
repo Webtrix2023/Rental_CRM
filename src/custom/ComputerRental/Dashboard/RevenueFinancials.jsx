@@ -1,5 +1,5 @@
 import { IndianRupee, AlertCircle, Laptop,Monitor,Smartphone,Server,Printer,Camera,Box } from "lucide-react"; // Or use any icon lib
-import { API_BASE_URL } from "../../../config";
+import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 import { useState,useEffect } from "react";
 
