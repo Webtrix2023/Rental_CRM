@@ -260,7 +260,7 @@ function ProductJourneyReport({product_id}) {
                 <div className="col-span-3">
                   <ProductSearchInput
                     value={safeParse(product)} 
-                    stockDisable= {true}
+                    stockCheckDisable={true}
                     onChange={(prod) =>{
                       if (prod) {
                         setProductId(prod.product_id)
