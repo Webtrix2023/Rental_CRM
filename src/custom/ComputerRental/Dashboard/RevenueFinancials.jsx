@@ -85,7 +85,7 @@ export default function RevenueFinancials({
               {productTypesList && productTypesList.map((item) => (
                 <div key={item.category_id} className="flex flex-col items-center bg-gray-100 rounded-lg px-4 py-3 w-28">
                   <div className="mb-1">{productTypeIcons[item.slug] || productTypeIcons.default}</div>
-                  <div className="text-base font-bold text-gray-700">{item.stats || 0}</div>
+                  <div className="text-base font-bold text-gray-700">{item.on_rent || 0}/{item.stats || 0}</div>
                   <div className="text-xs text-gray-500 text-center">{item.categoryName || '-'}</div>
                 </div>
               ))}

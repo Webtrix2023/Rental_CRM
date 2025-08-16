@@ -41,7 +41,7 @@ function ProductJourneyReport({product_id}) {
   const [product, setProduct] = useState(null);
   const [timeline, setTimeline] = useState([]);
   const formRef = useRef(null);
-  const [productId, setProductId] = useState(product_id);
+  const [productId, setProductId] = useState(88);
   const handleExport = (e) => {
     e.preventDefault();    
     const type = e.target.getAttribute("data-type");    
@@ -423,7 +423,7 @@ function ProductJourneyReport({product_id}) {
           <div className="text-sm flex flex-col gap-1">
             <div className="flex justify-between"><span>ROI to Date</span><span className="text-green-600">0 %</span></div>
             <div className="flex justify-between"><span>Avg Monthly Revenue</span><span>₹ 0</span></div>
-            <div className="flex justify-between"><span>Rental Cycles</span><span> {product?.rental_cycles ?? 0} completed, {product?.ongoing ?? 0} ongoing</span></div>
+            <div className="flex justify-between"><span>Rental Cycles</span><span> {product?.completed ?? 0} completed, {product?.ongoing ?? 0} ongoing</span></div>
           </div>
         </div>
       </div>
