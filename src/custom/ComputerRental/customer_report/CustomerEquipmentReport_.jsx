@@ -12,9 +12,8 @@ const STATUS_STYLES = {
 function StatusPill({ status }) {
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-        STATUS_STYLES[status] || "bg-gray-100 text-gray-500"
-      }`}
+      className={`px-3 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[status] || "bg-gray-100 text-gray-500"
+        }`}
     >
       {status}
     </span>
@@ -44,14 +43,15 @@ export default function CustomerEquipmentReport({ customerId, customerName }) {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const res = await fetchJson(`${API_BASE_URL}/rentalReports`,{
-        method:'POST',
-          body: JSON.stringify({
-            report_type: "customer_wise",
-            customer_id: customerId,
-            customerName: encodeURIComponent(customerName),
-            curpage: String(page - 1),
-          })}
+      const res = await fetchJson(`${API_BASE_URL}/rentalReports`, {
+        method: 'POST',
+        body: JSON.stringify({
+          report_type: "customer_wise",
+          customer_id: customerId,
+          customerName: encodeURIComponent(customerName),
+          curpage: String(page - 1),
+        })
+      }
       );
       const data = await res;
 
@@ -84,8 +84,8 @@ export default function CustomerEquipmentReport({ customerId, customerName }) {
             row.action === "Delivered"
               ? "Ongoing"
               : row.action === "return"
-              ? "Returned"
-              : "Ongoing",
+                ? "Returned"
+                : "Ongoing",
         }));
         setEquipments(eq);
       } else {
@@ -127,12 +127,16 @@ export default function CustomerEquipmentReport({ customerId, customerName }) {
           </div>
         </div>
         <div className="flex gap-2 mt-4 md:mt-0">
-          <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-semibold text-sm">
-            ⬇️ Export Excel
-          </button>
-          <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-semibold text-sm">
-            ⬇️ Export PDF
-          </button>
+          {paged.length !== 0 && (
+            <>
+              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-semibold text-sm">
+                ⬇️ Export Excel
+              </button>
+              <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-semibold text-sm">
+                ⬇️ Export PDF
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -364,11 +368,10 @@ export default function CustomerEquipmentReport({ customerId, customerName }) {
             {[...Array(Math.ceil(filtered.length / PAGE_SIZE)).keys()].map((i) => (
               <button
                 key={i}
-                className={`px-2 py-1 rounded ${
-                  i + 1 === page
+                className={`px-2 py-1 rounded ${i + 1 === page
                     ? "bg-blue-600 text-white"
                     : "hover:bg-blue-100 text-blue-700"
-                }`}
+                  }`}
                 onClick={() => setPage(i + 1)}
               >
                 {i + 1}

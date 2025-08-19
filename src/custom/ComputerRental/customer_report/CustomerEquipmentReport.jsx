@@ -13,6 +13,7 @@ const STATUS_STYLES = {
   Returned: "bg-red-50 text-red-700",
   Upgrade: "bg-orange-50 text-orange-700",
   Replaced: "bg-blue-50 text-blue-700",
+  pending: "bg-yellow-50 text-white-700",
 };
 
 function StatusPill({ status }) {
@@ -37,6 +38,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
 
   const [summary, setSummary] = useState({
     ongoing: 0,
+    replacement_pending: 0,
     returned: 0,
     replaced: 0,
     total: 0,
@@ -79,9 +81,13 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
       const returned = data.data.filter((row) => row.action === "return");
       const delivered = data.data.filter((row) => row.action === "Delivered");
       const replaced = data.data.filter((row) => row.action === "replace");
+      const pending = data.data.filter((row) => row.is_replacement === "y" && row.replace_row_id === null);
       const ongoing = delivered.length;
       const ret = returned.length;
       const rep = replaced.length;
+      const pen = pending.length;
+      console.log('pending : ',pending);
+      
       const billing =
         delivered.reduce(
           (sum, row) => sum + Number(row.invoiceLineRate || 0),
@@ -95,6 +101,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         ongoing,
         returned: ret,
         replaced: rep,
+        replacement_pending: pen,
         total: delivered.length + ret,
         billing,
         avgDays: delivered.length
@@ -110,13 +117,14 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
               ? "Returned"
               : row.action === "replace"
                 ? "Replaced"
-                : "Ongoing",
+                : "Pending",
       }));
       setEquipments(eq);
     } else {
       setEquipments([]);
       setSummary({
         ongoing: 0,
+        replacement_pending: 0,
         returned: 0,
         replaced: 0,
         total: 0,
@@ -154,13 +162,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
           </div>
         </div>
         <div className="">
-          <ReportExport filters={filters} customerId={customerId} customerName={customerName} />
-          {/* <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-semibold text-sm" onClick={exportReport}>
-            ⬇️ Export Excel
-          </button>
-          <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-semibold text-sm">
-            ⬇️ Export PDF
-          </button> */}
+          {paged.length !== 0 && (<ReportExport filters={filters} customerId={customerId} customerName={customerName} />)}
         </div>
       </div>
 
@@ -205,10 +207,11 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
       </div>
 
       {/* KPI Cards */}
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4 my-5 md:my-7">
+      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4 my-5 md:my-7">
         <KPIBox icon={<Laptop size={22} />} label="Ongoing Assets" value={summary.ongoing} color="green" />
         <KPIBox icon={<RotateCcw size={20} />} label="Returned Assets" value={summary.returned} color="red" />
         <KPIBox icon={<ReplaceAll size={20} />} label="Replaced Assets" value={summary.replaced} color="violet" />
+        <KPIBox icon={<IndianRupee size={20} />} label="Pending Replaced" value={summary.replacement_pending} color="yellow" />
         <KPIBox icon={<IndianRupee size={20} />} label="Monthly Billing" value={`₹ ${summary.billing.toLocaleString()}`} color="blue" />
         <KPIBox icon={<CalendarDays size={20} />} label="Avg. Rental Days" value={summary.avgDays} color="orange" />
       </div>
@@ -284,7 +287,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
             <thead>
               <tr className="text-xs text-gray-500 font-semibold border-b">
                 <th className="py-2 text-left">Asset Info</th>
-                <th className="py-2 text-left">Delivery</th>
+                <th className="py-2 text-left">Delivery Challan No.</th>
                 <th className="py-2 text-left">Duration</th>
                 <th className="py-2 text-left">Billing</th>
                 <th className="py-2 text-left">Status</th>

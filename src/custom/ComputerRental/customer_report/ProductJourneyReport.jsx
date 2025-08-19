@@ -308,6 +308,16 @@ function ProductJourneyReport({product_id}) {
                         In Inventory
                       </span>
                     )}
+                    {(!product.current_status || product.current_status === 'damaged') && (
+                      <span className="inline-block px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold text-xs">
+                        Damaged
+                      </span>
+                    )}
+                    {(!product.current_status || product.current_status === 'in_maintenance') && (
+                      <span className="inline-block px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-semibold text-xs">
+                        In Maintenance
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
