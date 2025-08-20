@@ -41,7 +41,7 @@ function ProductJourneyReport({product_id}) {
   const [product, setProduct] = useState(null);
   const [timeline, setTimeline] = useState([]);
   const formRef = useRef(null);
-  const [productId, setProductId] = useState(88);
+  const [productId, setProductId] = useState(product_id);
   const handleExport = (e) => {
     e.preventDefault();    
     const type = e.target.getAttribute("data-type");    

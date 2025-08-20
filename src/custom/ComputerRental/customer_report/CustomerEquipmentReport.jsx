@@ -146,7 +146,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
     return true;
   });
 
-  const not_replacement = equipments.filter((row) => row.is_replacement === 'n');
+  const not_replacement = equipments.filter((row) => row.is_replacement === 'n' || row.replace_row_id !== null  );
 
   const PAGE_SIZE = 5;
   const paged = filtered.slice((page - 1) * records_per_page, page * records_per_page);
@@ -345,7 +345,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                       </div>
                       {row.last_bill_date &&
                         <div className="text-xs text-gray-400">
-                          Last: {row.last_bill_date || "-"}
+                          Last Invoice Date : {row.last_bill_date || "-"}
                         </div>}
                     </td>
                     <td className="py-3">

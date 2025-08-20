@@ -144,7 +144,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                   config={{type: 'category',valueKey:'category_id',source: 'reason',
                   getLabel: (item) => `${item.categoryName}`,
                   getValue: (item) => item.categoryName,
-                  placeholder: 'Select Category',
+                  placeholder: 'Select Reason',
                   list:"categoryName,category_id",
                   allowAddNew: false,preload: true,cache: true,showRecent: true}}
                 />
@@ -203,7 +203,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                       config={{type: 'category',valueKey:'category_id',source: 'operating_system',
                       getLabel: (item) => `${item.categoryName}`,
                       getValue: (item) => item.category_id,
-                      placeholder: 'Select Category',
+                      placeholder: 'Select Operating System',
                       list:"categoryName,category_id",
                       allowAddNew: false,preload: true,cache: true,showRecent: true}}
                     />
@@ -221,7 +221,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                       config={{type: 'category',valueKey:'category_id',source: 'screensizes',
                       getLabel: (item) => `${item.categoryName}`,
                       getValue: (item) => item.category_id,
-                      placeholder: 'Select Category',
+                      placeholder: 'Select Screen Size',
                       list:"categoryName,category_id",
                       allowAddNew: false,preload: true,cache: true,showRecent: true}}
                     />

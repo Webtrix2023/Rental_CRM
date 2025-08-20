@@ -307,7 +307,7 @@ export default function ProductInvocing() {
             }}
           />
         </div>
-        <div className="flex-1 min-w-[140px]">
+        {/* <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold mb-1">
             Invoice Date
           </label>
@@ -321,7 +321,7 @@ export default function ProductInvocing() {
               className="w-full border rounded px-3 py-2 text-gray-700  focus:outline-none"
             />
           </div>
-        </div>
+        </div> */}
         <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold mb-1">
             Billing Date
@@ -379,8 +379,6 @@ export default function ProductInvocing() {
         ) : (
           assets.map((a) => {
             const disabled = (a.revenue == 0) || isDisabled(a);
-            const product_details = a.productObject ? JSON.parse(a.productObject) : {};
-
             return (
               <div
                 key={a.itemID}
@@ -413,7 +411,7 @@ export default function ProductInvocing() {
                   </div>
                   <div className="text-xs text-gray-500">
                     <span className="mr-1">
-                      {product_details.product_serial_no || "-"} |
+                      {a.product_serial_no || "-"} |
                     </span>
                     {a.challan_number && <> Challan: {a.challan_number}</>} |
                     Delivered:{" "}
@@ -421,7 +419,7 @@ export default function ProductInvocing() {
                       ? new Date(a.deliveryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })
                       : "-"}
                     {a.last_bill_date && (
-                      <><span>|</span><span className="text-red-400"> Last Invoice: {new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</span></>
+                      <><span>|</span><span className="text-red-400"> Last Invoice Date: {new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</span></>
                     )}
                     {a.returnDate && (
                       <span className="text-red-400 ml-2">(Returned)</span>
