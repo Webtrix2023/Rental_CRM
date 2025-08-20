@@ -307,7 +307,7 @@ export default function ProductInvocing() {
             }}
           />
         </div>
-        {/* <div className="flex-1 min-w-[140px]">
+        <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold mb-1">
             Invoice Date
           </label>
@@ -321,7 +321,7 @@ export default function ProductInvocing() {
               className="w-full border rounded px-3 py-2 text-gray-700  focus:outline-none"
             />
           </div>
-        </div> */}
+        </div>
         <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold mb-1">
             Billing Date
