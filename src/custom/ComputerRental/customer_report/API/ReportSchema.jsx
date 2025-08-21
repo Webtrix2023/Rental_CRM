@@ -27,7 +27,10 @@ export const defaultUpgradeModel = {
   screensize: null,
   operating_system: null,
   memory: null,
-  hdd_capacity: null,
+  old_screensize: null,
+  old_operating_system: null,
+  old_memory: null,
+  old_hdd_capacity: null,
 };
 
 // Replace Action Model

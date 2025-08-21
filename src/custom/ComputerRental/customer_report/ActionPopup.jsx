@@ -36,6 +36,10 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
       ['itemID']: itemID,
       ['invoice_id']: invoice_id,
       ['product_id']: product_id,
+      ['old_hdd_capacity']: itemRow.hdd_capacity_id || null,
+      ['old_memory']: itemRow.memory_id || null,
+      ['old_operating_system']: itemRow.operating_system_id || null,
+      ['old_screensize']: itemRow.screensize_id || null,
     }));
 
   }, [isOpen, action]);

@@ -3,7 +3,8 @@ import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 import { ReportExport } from "./ReportExport";
 import { ActionPopup } from "./ActionPopup";
-import { ReplaceAll, Laptop, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown, ArrowUpFromLine } from "lucide-react";
+import { UpgradePopup } from "./UpgradePopup";
+import { ReplaceAll, Laptop, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown , BadgeInfo , ArrowUpFromLine } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
 
 
@@ -33,6 +34,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   const [equipments, setEquipments] = useState([]);
   const [customerId, setCustomerID] = useState(customer_id);
   const [showReturnModal, setShowReturnModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [action, setAction] = useState('');
   const [selectedRow, setSelectedRow] = useState(null);
 
@@ -86,8 +88,6 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
       const ret = returned.length;
       const rep = replaced.length;
       const pen = pending.length;
-      console.log('pending : ',pending);
-      
       const billing =
         delivered.reduce(
           (sum, row) => sum + Number(row.invoiceLineRate || 0),
@@ -351,7 +351,12 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                     <td className="py-3">
                       <StatusPill status={row.status} />
                     </td>
-                    <td className="py-3">
+                    <td className="py-3 relative">
+                      {row.upgradeLines?.length != 0 && (
+                        <div className="absolute top-0 right-0">
+                        <BadgeInfo size={18} color="#4d6aff" onClick={()=>{ setSelectedRow(row) ; setShowUpgradeModal(true)}} />
+                      </div>
+                      )}
                       {row.action === "return" ? (
                         <div>
                           <div>{row.return_date || "-"}</div>
@@ -460,6 +465,11 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         not_replacement={not_replacement}
         refreshCustomerReport ={fetchData}
         onClose={() => setShowReturnModal(false)}
+      />
+      <UpgradePopup
+        itemRow={selectedRow}
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
       />
       {/* Footer */}
       <div className="max-w-5xl mx-auto text-gray-400 text-xs flex flex-col md:flex-row justify-between items-center pb-4 gap-2">
