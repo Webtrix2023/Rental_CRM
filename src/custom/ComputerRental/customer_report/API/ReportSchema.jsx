@@ -24,9 +24,12 @@ export const defaultUpgradeModel = {
   upgrade_charges: null,
   upgrade_type: null,
   charges_apply_from: 'this_month',
+  
   screensize: null,
   operating_system: null,
   memory: null,
+  hdd_capacity: null,
+  
   old_screensize: null,
   old_operating_system: null,
   old_memory: null,

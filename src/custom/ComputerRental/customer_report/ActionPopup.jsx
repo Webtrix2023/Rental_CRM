@@ -46,13 +46,24 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
 
   if (!isOpen) return null;
 
-
+  const isDateValid = (date) => {
+    if (!date) return false;
+    const d = new Date(date);
+    const today = new Date();
+    d.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    return d.getTime() === today.getTime();
+  };
   const handleInputChange = (field, value) => {
     setPayload((prev) => ({
       ...prev,
       [field]: value,
     }));
-    console.log("Payload :",payload);
+  };
+  const isConfigChanged = (payload) => {
+    const fields = ["screensize", "operating_system", "memory", "hdd_capacity"];
+    return fields.some((field) => payload[field] !== null);
   };
   function capitalize(str) {
     if (!str) return '';
@@ -65,11 +76,23 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
         toast.error("Please fill all required return fields.");
         return;
       }
+      if (!isDateValid(payload?.return_date)) {
+        toast.error("Return Date date cannot be in the past and future.");
+        return;
+      }
     }
 
     if (action === "upgrade") {
       if ( !payload?.upgrade_date || !payload?.charges_apply_from || !payload?.upgrade_charges ) {
         toast.error("Please fill all required upgrade fields.");
+        return;
+      }
+      if (!isConfigChanged(payload)) {
+        toast.error("Please select any upgrade.");
+        return;
+      }
+      if (!isDateValid(payload?.upgrade_date)) {
+        toast.error("Upgrade Date date cannot be in the past and future.");
         return;
       }
     }
@@ -79,10 +102,12 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
         toast.error("Please fill all required replace fields.");
         return;
       }
+      if (!isDateValid(payload?.replace_date)) {
+        toast.error("Replace Date date cannot be in the past and future.");
+        return;
+      }
     }
-
     setLoading(true);
-
     const res = await fetchJson(`${API_BASE_URL}/rental/product-action/${action}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -161,7 +186,6 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">HDD Capacity</label>
-                    {console.log('hdd_capacity_id : ',itemRow?.hdd_capacity_id)}
                     <SmartSelectInput
                       id="hdd_capacity" label="" value={itemRow?.hdd_capacity_id}
                       onSelect={(data) => {
@@ -178,7 +202,6 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                   </div>
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">Memory</label>
-                    {console.log('memory_id : ',itemRow?.memory_id)}
                     <SmartSelectInput
                       id="memory" label="" value={itemRow?.memory_id}
                       onSelect={(data) => {
@@ -197,7 +220,6 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">Operating System</label>
-                    {console.log('operating_system_id : ',itemRow?.operating_system_id)}
                     <SmartSelectInput
                       id="operating_system" label="" value={itemRow?.operating_system_id}
                       onSelect={(data) => {
@@ -214,8 +236,6 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                   </div>
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">Screen Size</label>
-                    {console.log('screensize_id : ',itemRow?.screensize_id)}
-
                     <SmartSelectInput
                       id="screensize" label="" value={itemRow?.screensize_id}
                       onSelect={(data) => {
@@ -244,7 +264,6 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                         handleInputChange("charges_apply_from",e.target.value)
                       }}
                     >
-                      {console.log('paylod :',payload)}
                       <option value="this_month" >This Month</option>
                       <option value="next_month" >Next Month</option>
                     </select>

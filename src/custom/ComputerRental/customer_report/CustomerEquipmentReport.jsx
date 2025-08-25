@@ -146,7 +146,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
     return true;
   });
 
-  const not_replacement = equipments.filter((row) => row.is_replacement === 'n' || row.replace_row_id !== null  );
+  const not_replacement = equipments.filter((row) => row.is_close === 'n' && (row.is_replacement === 'n' || row.replace_row_id !== null)  );
 
   const PAGE_SIZE = 5;
   const paged = filtered.slice((page - 1) * records_per_page, page * records_per_page);
@@ -352,7 +352,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                       <StatusPill status={row.status} />
                     </td>
                     <td className="py-3 relative">
-                      {row.upgradeLines?.length != 0 && (
+                      {Array.isArray(row?.upgradeLines) && row.upgradeLines.length > 0 && (
                         <div className="absolute top-0 right-0">
                         <BadgeInfo size={18} color="#4d6aff" onClick={()=>{ setSelectedRow(row) ; setShowUpgradeModal(true)}} />
                       </div>
