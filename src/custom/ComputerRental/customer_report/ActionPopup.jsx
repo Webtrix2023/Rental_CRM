@@ -279,7 +279,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
               <select className="ws-input form-input w-full text-gray-600 text-md bg-gray-100 rounded focus:outline-none text-sm px-3 py-2 pr-10 rounded" name="Charges apply from" onChange={ (e)=>{handleInputChange('replaced_row_id',e.target.value);} }>
                 <option value=''>Select Replacement</option>
                 {not_replacement && not_replacement.map((item, index) => (
-                  <option key={index} value={item.itemID}>{`${item.product_name} - ${item.product_serial_no}`}</option>
+                  <option key={index} value={item.itemID}>{`${item.product_serial_no}`}</option>
                 ))}
               </select>
             </div>}

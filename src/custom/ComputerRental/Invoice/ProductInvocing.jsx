@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {
@@ -13,6 +15,7 @@ import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
+
 
 const swalObj = withReactContent(Swal);
 
@@ -45,7 +48,7 @@ export default function ProductInvocing() {
     selectedAssets: [],
   });
 
-  const [customer, setCustomer] = useState(null);
+  const [customer, setCustomer] = useState(139);
   const [assets, setAssets] = useState([]);
   const [selectedAssets, setSelectedAssets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -285,7 +288,7 @@ export default function ProductInvocing() {
       {/* Invoice Setup */}
       <div className="bg-white shadow rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-end gap-4">
         <div className="flex-1 min-w-[160px]">
-          <label className="block text-xs font-semibold mb-1">Customer</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
           <SmartSelectInput
             id="customer"
             label=""
@@ -308,34 +311,32 @@ export default function ProductInvocing() {
           />
         </div>
         <div className="flex-1 min-w-[140px]">
-          <label className="block text-xs font-semibold mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Invoice Date
           </label>
-          <div className="relative">
-            <input
-              type="date"
-              value={invoiceDetails.invoiceDate}
-              onChange={(e) =>
-                handleInputChange("invoiceDate", e.target.value)
-              }
-              className="w-full border rounded px-3 py-2 text-gray-700  focus:outline-none"
-            />
-          </div>
+          <DatePicker
+            selected={invoiceDetails.invoiceDate}
+            minDate={new Date()}   // prevent past dates
+            maxDate={new Date()}   // prevent future dates
+            onChange={(date) => handleInputChange('invoice_date', date?.toISOString())}
+            className="ws-date form-input w-full text-gray-600 bg-gray-100 rounded focus:outline-none px-3 py-2 pr-10 px-2 py-1 text-sm"
+            placeholderText="Select a date"
+            dateFormat="yyyy-MM-dd"
+          />
         </div>
         <div className="flex-1 min-w-[140px]">
-          <label className="block text-xs font-semibold mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Billing Date
           </label>
-          <div className="relative">
-            <input
-              type="date"
-              value={invoiceDetails.billingDate}
-              onChange={(e) =>
-                handleInputChange("billingDate", e.target.value)
-              }
-              className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none"
-            />
-          </div>
+          <DatePicker
+            minDate={new Date()}   // prevent past dates
+            maxDate={new Date()}   // prevent future dates
+            selected={invoiceDetails.billingDate}
+            onChange={(date) => handleInputChange('billingDate', date?.toISOString())}
+            className="ws-date form-input w-full text-gray-600 bg-gray-100 rounded focus:outline-none px-3 py-2 pr-10 px-2 py-1 text-sm"
+            placeholderText="Select a date"
+            dateFormat="yyyy-MM-dd"
+          />
         </div>
       </div>
 
@@ -383,66 +384,112 @@ export default function ProductInvocing() {
               <div
                 key={a.itemID}
                 className={clsx(
-                  "flex items-center border p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer",
+                  "border p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer",
                   disabled && "opacity-50 pointer-events-none"
                 )}
                 onClick={() => !disabled && toggleSelect(a.itemID)}
               >
-                <div className="mr-3">
-                  {isSelected(a.itemID) ? (
-                    <CheckSquare className="text-blue-500" size={22} />
-                  ) : (
-                    <Square className="text-gray-400" size={22} />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-600">
+                <div className="flex items-center">
+                  <div className="mr-3">
+                    {isSelected(a.itemID) ? (
+                      <CheckSquare className="text-blue-500" size={22} />
+                    ) : (
+                      <Square className="text-gray-400" size={22} />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-600">
 
-                    <span>
-                      {a.invoiceLineNarr || "Product"}
-                    </span>
-                    <span>
-                      {a.billing_type && (
-                        <span className="font-normal text-sm ml-1.5">
-                          ({capitalizeFirst(a.billing_type) || ""})
-                        </span>
+                      <span>
+                        {a.invoiceLineNarr || "Product"}
+                      </span>
+                      <span>
+                        {a.billing_type && (
+                          <span className="font-normal text-sm ml-1.5">
+                            ({capitalizeFirst(a.billing_type) || ""})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      <span className="mr-1">
+                        {a.product_serial_no || "-"} |
+                      </span>
+                      {a.challan_number && <> Challan: {a.challan_number}</>} |
+                      Delivered:{" "}
+                      {a.deliveryDate
+                        ? new Date(a.deliveryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })
+                        : "-"}
+                      {a.last_bill_date && (
+                        <><span>|</span><span className="text-red-400"> Last Invoice Date: {new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</span></>
                       )}
-                    </span>
+                      {a.returnDate && (
+                        <span className="text-red-400 ml-2">(Returned)</span>
+                      )}
+                      {a.billing_type === "contract" && (
+                        <span className="text-red-400 ml-2">| Contract Start : {new Date(a.contract_start).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })} Contract End : {new Date(a.contract_end).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</span>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-500">
-                    <span className="mr-1">
-                      {a.product_serial_no || "-"} |
-                    </span>
-                    {a.challan_number && <> Challan: {a.challan_number}</>} |
-                    Delivered:{" "}
-                    {a.deliveryDate
-                      ? new Date(a.deliveryDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })
-                      : "-"}
-                    {a.last_bill_date && (
-                      <><span>|</span><span className="text-red-400"> Last Invoice Date: {new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</span></>
-                    )}
-                    {a.returnDate && (
-                      <span className="text-red-400 ml-2">(Returned)</span>
-                    )}
-                    {a.billing_type === "contract" && (
-                      <span className="text-red-400 ml-2">| Contract Start : {new Date(a.contract_start).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })} Contract End : {new Date(a.contract_end).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</span>
-                    )}
+                  <div className="text-right">
+                    <div className="text-xs text-gray-400">
+                      {a.is_replacement == 'y' && (<><span className="mx-1 text-green-900">REPL</span><span>| </span></>)}
+                      {a.upgraded_bill == 'Y' && a.upgraded_rate && (
+                        <>
+                        <span className="text-red-400">
+                          Upgraded Rate ₹{a.upgraded_rate}
+                        </span> 
+                        <span className="mx-1"> |</span>                    
+                        </>
+                      )}
+                      <span className="">
+                        Rate: ₹{a.invoiceLineRate}/month
+                      </span> 
+                    </div>
+                    <div className="text-green-600 font-bold">
+                      
+                      <span>
+                        ₹{a.revenue}
+                      </span>
+                      <span className="ml-1 text-xs text-gray-500">
+                        {a.total_rent_days || 0}{" "}
+                        {a.billing_type === "monthly" ||
+                          a.billing_type === "contract"
+                          ? "Months"
+                          : "Days"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-400">
-                    Rate: ₹{a.invoiceLineRate}/month
-                  </div>
-                  <div className="text-green-600 font-bold">
-                    ₹{a.revenue}
-                    <span className="ml-1 text-xs text-gray-500">
-                      {a.total_rent_days || 0}{" "}
-                      {a.billing_type === "monthly" ||
-                        a.billing_type === "contract"
-                        ? "Months"
-                        : "Days"}
-                    </span>
-                  </div>
+                <div className="mt-2 pt-1 text-sm text-gray-500 flex items-center">
+                  {a.replaced_revenue && Object.entries(a.replaced_revenue).length != 0  && (
+                    <>
+                      <span>Replace Items Note: {!a.replaced_revenue && (<span>N/A</span>)} </span>
+                      {a.replaced_revenue && (
+                        <>
+                          <span className="mx-1 text-green-500">
+                            Replaced item is billed 
+                          </span>
+                          <span className="mx-1">
+                            | Replaced item revenue : {a.replaced_revenue?.revenue} |
+                          </span>
+                          {a.replaced_revenue?.billing_type && (
+                            <span className="mx-1">
+                              Billing Type : {a.replaced_revenue?.billing_type == "contract" ? 'Monthly' : a.replaced_revenue?.billing_type}
+                            </span>
+                          )}
+                          {a.replaced_revenue?.start && a.replaced_revenue?.end && (
+                            <span className="mx-1">
+                              Billing Period : { a.replaced_revenue?.start } to { a.replaced_revenue?.end } 
+                            </span>
+                          )}
+                        </>
+                      )
+                      }
+                      <span className="text-xs text-gray-400">
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             );

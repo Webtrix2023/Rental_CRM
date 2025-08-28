@@ -367,13 +367,14 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                       ) : row.action === "replace" ? (
                         <div>
                           <div className="text-xs text-blue-500">Replaced on: {row.return_date || "-"}</div>
+                          <div className="text-xs text-blue-500">Replaced with: {row.replaced_product.product_serial_no || "-"}</div>
                           <div className="text-xs text-gray-600">{row.reason || ""}</div>
                         </div>
                       ) : (
                         <div className="flex gap-0.5">
-                          <button className={`w-full ${row.is_replacement == 'y' && !row.replace_row_id ? 'md:w-1/3' : 'md:w-1/2'} flex items-center justify-center mt-1 gap-1 bg-red-500 hover:bg-red-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('return'); setShowReturnModal(true); }}> <RotateCcw size={14} /> Return </button>
-                          <button className={`w-full ${row.is_replacement == 'y' && !row.replace_row_id ? 'md:w-1/3' : 'md:w-1/2'}  flex items-center justify-center mt-1 gap-1 bg-orange-500 hover:bg-orange-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('upgrade'); setShowReturnModal(true); }}> <ArrowUpFromLine size={14} /> Upgrade </button>
-                          {row.is_replacement == 'y' && !row.replace_row_id &&
+                          <button className={`w-full ${row.is_replacement == 'y' && !row.replaced_product_data ? 'md:w-1/3' : 'md:w-1/2'} flex items-center justify-center mt-1 gap-1 bg-red-500 hover:bg-red-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('return'); setShowReturnModal(true); }}> <RotateCcw size={14} /> Return </button>
+                          <button className={`w-full ${row.is_replacement == 'y' && !row.replaced_product_data ? 'md:w-1/3' : 'md:w-1/2'}  flex items-center justify-center mt-1 gap-1 bg-orange-500 hover:bg-orange-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('upgrade'); setShowReturnModal(true); }}> <ArrowUpFromLine size={14} /> Upgrade </button>
+                          {row.is_replacement == 'y' && !row.replaced_product_data &&
                             <button className={`w-full md:w-1/3 flex items-center justify-center mt-1 gap-1 bg-blue-500 hover:bg-blue-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('replace'); setShowReturnModal(true); }}> <ArrowUpDown size={14} /> Replace </button>
                           }
                         </div>

@@ -25,7 +25,7 @@ function SkeletonRow() {
   );
 }
 
-export default function invoicePreview() {
+export default function InvoicePreview() {
   const { record_id } = useParams();
   const invoiceID = record_id;
 
@@ -194,49 +194,85 @@ export default function invoicePreview() {
           </div>
         ) : (
           assets.map((a) => {
+            let replaced_product_data =  (a.replaced_product_data) ? a.replaced_product_data : null;
+            let replaced_product_details =  (replaced_product_data.product_details) ? replaced_product_data.product_details : null;
+            console.log('replaced_product_data : ',replaced_product_data);
+            console.log('replaced_product_details : ',replaced_product_details);
+            
             return (
               <div
                 key={a.itemID}
                 className={clsx(
-                  "flex items-center border p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer"
+                  "border p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer"
                 )}
               >
-                <div className="flex-1">
-                  <div className="font-medium text-gray-600">
-                    <span>
-                      {a.invoiceLineNarr || "Product"}
-                    </span>
-                    <span>
-                      {a.billing_type && (
-                        <span className="font-normal text-sm ml-1.5">
-                          ({capitalizeFirst(a.billing_type) || ""})
-                        </span>
-                      )}
-                    </span>
+                <div className="flex items-center ">
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-600">
+                      <span>
+                        {a.invoiceLineNarr || "Product"}
+                      </span>
+                      <span>
+                        {a.billing_type && (
+                          <span className="font-normal text-sm ml-1.5">
+                            ({capitalizeFirst(a.billing_type) || ""})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      <span className="mr-1">
+                        {a.product_serial_no || "-"}
+                      </span>
+                      <span>
+                        | {new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })} - {new Date(invoiceDetails.invoiceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-500">
-                    <span className="mr-1">
-                      {a.product_serial_no || "-"}
-                    </span>
-                    <span>
-                      | {new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })} - {new Date(invoiceDetails.invoiceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}
-                    </span>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-400">
+                      Rate: ₹{a.invoiceLineRate}/month
+                    </div>
+                    <div className="text-green-600 font-bold">
+                      ₹{a.invoiceLineAmount}
+                      <span className="ml-1 text-xs text-gray-500">
+                        {a.invoiceLineQty || 0}{" "}
+                        {a.billing_type === "monthly" ||
+                          a.billing_type === "contract"
+                          ? "Months"
+                          : "Days"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-400">
-                    Rate: ₹{a.invoiceLineRate}/month
-                  </div>
-                  <div className="text-green-600 font-bold">
-                    ₹{a.invoiceLineAmount}
-                    <span className="ml-1 text-xs text-gray-500">
-                      {a.invoiceLineQty || 0}{" "}
-                      {a.billing_type === "monthly" ||
-                        a.billing_type === "contract"
-                        ? "Months"
-                        : "Days"}
-                    </span>
-                  </div>
+                <div className="mt-2 pt-1 text-sm text-gray-500 flex items-center">
+                 
+                  {Object.entries(replaced_product_data).length != 0 && (
+                    <>
+                      <span>Replace Items Note: {Object.entries(replaced_product_data).length =Object.entries(replaced_product_data).length == 0 && (<span>N/A</span>)} </span>
+                      {replaced_product_details && (
+                        <>
+                          <span className="mx-1 text-green-500">
+                            Replaced item bill is included for <b>{replaced_product_details.product_serial_no || '-'}</b>
+                          </span>
+                       
+                          {replaced_product_data?.delivery_date && replaced_product_data?.return_date && (
+                            <span className="mx-1">
+                              | Billing Period : {replaced_product_data?.delivery_date} to {replaced_product_data?.return_date}
+                            </span>
+                          )}
+                          {replaced_product_data?.billing_type && (
+                            <span className="mx-1">
+                              | Billing Type : {replaced_product_data?.billing_type == "contract" ? 'Monthly' : replaced_product_data?.billing_type}
+                            </span>
+                          )}
+                        </>
+                      )
+                      }
+                      <span className="text-xs text-gray-400">
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             );

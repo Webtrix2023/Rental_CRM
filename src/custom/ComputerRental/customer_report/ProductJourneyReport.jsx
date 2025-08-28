@@ -161,6 +161,30 @@ function ProductJourneyReport({product_id}) {
                   </>
                 ),
               });
+            } else if (h.action === "replace") {
+              steps.push({
+                type: "replaced",
+                title: "Returned to Inventory",
+                icon : (
+                  <div className="text-red-500 rounded-full flex items-center justify-center">
+                    <RotateCcw size={17} strokeWidth={3} />
+                  </div>  
+                ),
+                desc: (
+                  <>
+                    Product replaced with {h.replaced_product && <span className="text-red-500"> {h.replaced_product?.product_name || '-'} - {h.replaced_product?.product_serial_no || '-'}</span>} by {h.customer_id || "Customer"}
+                  </>
+                ),
+                date: formatDate(h.returned_date || h.created_date),
+                meta: { condition: "Good" },
+                footer: (
+                  <>
+                    <div className="flex-1">Rental Days : {h.rental_days || 0}</div>
+                    {/* <div className="flex-1">Revenue :   ₹{h.revenue || 0}</div>
+                    <div className="flex-1">Condition :   {h.condition || "Good"}</div> */}
+                  </>
+                ),
+              });
             } else if (h.old_configuration || h.new_configuration) {
               steps.push({
                 type: "config",
