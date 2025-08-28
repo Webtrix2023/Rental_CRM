@@ -79,6 +79,18 @@ export default function ProductInvocing() {
     return d <= today;
   };
 
+  function isLastBillDatePassed(lastBillDateStr) {
+  if (!lastBillDateStr) return false; // handle empty/null
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // normalize today
+
+  const lastBillDate = new Date(lastBillDateStr);
+  lastBillDate.setHours(0, 0, 0, 0); // normalize input
+
+  return lastBillDate < today; // true if passed
+}
+
   const compareDate = (invoiceDate, lastBillDate, billing_type) => {
     if (!lastBillDate) return true; // no last bill → billing allowed
 
