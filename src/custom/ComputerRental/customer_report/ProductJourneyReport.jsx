@@ -124,7 +124,7 @@ function ProductJourneyReport({product_id}) {
                 ),
                 desc: (
                   <>
-                    Delivered to {h.customer_id || "Unknown Customer"}           
+                    Delivered to {h.customer_name || "Unknown Customer"}           
                   </>
                 ),
                 date: formatDate(h.invoiceDate),
@@ -133,7 +133,7 @@ function ProductJourneyReport({product_id}) {
                   <>
                     <div className="flex-1">Delivery Challan : {h.invoiceNumber || "-"}</div>
                     <div className="flex-1">Monthly Rate :   ₹{h.rate}</div>
-                    <div className="flex-1">Customer :   {h.customer_id || "Unknown Customer"}</div>
+                    <div className="flex-1">Customer :   {h.customer_name || "Unknown Customer"}</div>
                   </>
                 ),
               });
@@ -148,7 +148,7 @@ function ProductJourneyReport({product_id}) {
                 ),
                 desc: (
                   <>
-                    Product returned from {h.customer_id || "Customer"}
+                    Product returned from {h.customer_name || "Customer"}
                   </>
                 ),
                 date: formatDate(h.returned_date || h.created_date),
@@ -172,7 +172,7 @@ function ProductJourneyReport({product_id}) {
                 ),
                 desc: (
                   <>
-                    Product replaced with {h.replaced_product && <span className="text-red-500"> {h.replaced_product?.product_name || '-'} - {h.replaced_product?.product_serial_no || '-'}</span>} by {h.customer_id || "Customer"}
+                    Product replaced with {h.replaced_product && <span className="text-red-500"> {h.replaced_product?.product_name || '-'} - {h.replaced_product?.product_serial_no || '-'}</span>} by {h.customer_name || "Customer"}
                   </>
                 ),
                 date: formatDate(h.returned_date || h.created_date),

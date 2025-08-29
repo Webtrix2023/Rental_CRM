@@ -195,9 +195,7 @@ export default function InvoicePreview() {
         ) : (
           assets.map((a) => {
             let replaced_product_data =  (a.replaced_product_data) ? a.replaced_product_data : null;
-            let replaced_product_details =  (replaced_product_data.product_details) ? replaced_product_data.product_details : null;
-            console.log('replaced_product_data : ',replaced_product_data);
-            console.log('replaced_product_details : ',replaced_product_details);
+            let replaced_product_details =  (replaced_product_data?.product_details) ? replaced_product_data.product_details : null;
             
             return (
               <div
@@ -225,7 +223,9 @@ export default function InvoicePreview() {
                         {a.product_serial_no || "-"}
                       </span>
                       <span>
-                        | {new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })} - {new Date(invoiceDetails.invoiceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}
+                         | 
+                         {a.billing_type === "contract" && <>{new Date(a.contract_start).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })} - {new Date(a.contract_end).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</> }
+                         {a.billing_type !== "contract" && <>{new Date(a.last_bill_date).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })} - {new Date(invoiceDetails.invoiceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}</>}
                       </span>
                     </div>
                   </div>
@@ -247,7 +247,7 @@ export default function InvoicePreview() {
                 </div>
                 <div className="mt-2 pt-1 text-sm text-gray-500 flex items-center">
                  
-                  {Object.entries(replaced_product_data).length != 0 && (
+                  {replaced_product_data && Object.entries(replaced_product_data).length != 0 && (
                     <>
                       <span>Replace Items Note: {Object.entries(replaced_product_data).length =Object.entries(replaced_product_data).length == 0 && (<span>N/A</span>)} </span>
                       {replaced_product_details && (
