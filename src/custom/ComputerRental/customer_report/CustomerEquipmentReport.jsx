@@ -353,9 +353,12 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                     </td>
                     <td className="py-3 relative">
                       {Array.isArray(row?.upgradeLines) && row.upgradeLines.length > 0 && (
-                        <div className="absolute top-0 right-0">
-                        <BadgeInfo size={18} color="#4d6aff" onClick={()=>{ setSelectedRow(row) ; setShowUpgradeModal(true)}} />
-                      </div>
+                        <div className="absolute top-0 right-0 group">
+                          <BadgeInfo size={18} color="#4d6aff" onClick={()=>{ setSelectedRow(row) ; setShowUpgradeModal(true)}} />
+                          <span className="absolute right-4 top-8 -translate-y-1/2 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                            View upgrade details
+                          </span>
+                        </div>
                       )}
                       {row.action === "return" ? (
                         <div>
