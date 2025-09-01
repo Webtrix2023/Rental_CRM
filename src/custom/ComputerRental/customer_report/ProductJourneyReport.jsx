@@ -41,7 +41,8 @@ function ProductJourneyReport({product_id}) {
   const [product, setProduct] = useState(null);
   const [timeline, setTimeline] = useState([]);
   const formRef = useRef(null);
-  const [productId, setProductId] = useState(product_id);
+  // const [productId, setProductId] = useState(product_id);
+  const [productId, setProductId] = useState(31);
   const handleExport = (e) => {
     e.preventDefault();    
     const type = e.target.getAttribute("data-type");    
@@ -431,7 +432,7 @@ function ProductJourneyReport({product_id}) {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-8 mt-8 mb-10">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-8 mt-8 mb-10">
         <div className="bg-white rounded-xl shadow px-5 py-6">
           <div className="font-semibold mb-1">Revenue Breakdown</div>
           <div className="text-sm flex flex-col gap-1">
@@ -442,6 +443,8 @@ function ProductJourneyReport({product_id}) {
             <span>Total Revenue</span>
             <span className="text-green-600">₹ {product?.total_revenues ?? 0}</span>
           </div>
+          <div className="flex justify-between"><span>Rental Cycles</span><span> {product?.completed ?? 0} completed, {product?.ongoing ?? 0} ongoing</span></div>
+
         </div>
         <div className="bg-white rounded-xl shadow px-5 py-6">
           <div className="font-semibold mb-1">Utilization Stats</div>
@@ -450,14 +453,6 @@ function ProductJourneyReport({product_id}) {
             <div className="flex justify-between"><span>Days on Rent</span><span>{ product?.total_rental_days ?? 0 } days</span></div>
             <div className="flex justify-between"><span>Idle Days</span><span>{ product?.idle_days ?? 0 } days</span></div>
             <div className="flex justify-between"><span>Utilization Rate</span><span className="text-orange-600">{ product?.utilization_rate ?? 0}%</span></div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow px-5 py-6">
-          <div className="font-semibold mb-1">Performance Metrics</div>
-          <div className="text-sm flex flex-col gap-1">
-            <div className="flex justify-between"><span>ROI to Date</span><span className="text-green-600">0 %</span></div>
-            <div className="flex justify-between"><span>Avg Monthly Revenue</span><span>₹ 0</span></div>
-            <div className="flex justify-between"><span>Rental Cycles</span><span> {product?.completed ?? 0} completed, {product?.ongoing ?? 0} ongoing</span></div>
           </div>
         </div>
       </div>

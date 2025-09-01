@@ -12,9 +12,12 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
   
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState(null);
+  const [product_details, setProductDetails] = useState({});
 
   useEffect(() => {
     if (!isOpen) return;
+
+    setProductDetails(itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {})
 
     switch (action) {
       case 'return':
@@ -36,10 +39,10 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
       ['itemID']: itemID,
       ['invoice_id']: invoice_id,
       ['product_id']: product_id,
-      ['old_hdd_capacity']: itemRow.hdd_capacity_id || null,
-      ['old_memory']: itemRow.memory_id || null,
-      ['old_operating_system']: itemRow.operating_system_id || null,
-      ['old_screensize']: itemRow.screensize_id || null,
+      ['old_hdd_capacity']: product_details.hdd_capacity || null,
+      ['old_memory']: product_details.memory_id || null,
+      ['old_operating_system']: product_details.operating_system || null,
+      ['old_screensize']: product_details.screensize || null,
     }));
 
   }, [isOpen, action]);
@@ -125,6 +128,8 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
     }
   };
 
+  console.log('product_details :',product_details);
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#8f8f8fab] bg-opacity-40 px-4">
       <div className="bg-white w-full max-w-xl rounded-xl shadow-lg p-6 relative">
@@ -187,7 +192,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">HDD Capacity</label>
                     <SmartSelectInput
-                      id="hdd_capacity" label="" value={itemRow?.hdd_capacity_id}
+                      id="hdd_capacity" label="" value={product_details?.hdd_capacity}
                       onSelect={(data) => {
                         handleInputChange("hdd_capacity",data)
                       }}
@@ -203,7 +208,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">Memory</label>
                     <SmartSelectInput
-                      id="memory" label="" value={itemRow?.memory_id}
+                      id="memory" label="" value={product_details?.memory}
                       onSelect={(data) => {
                         handleInputChange("memory",data)
                       }}
@@ -221,7 +226,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">Operating System</label>
                     <SmartSelectInput
-                      id="operating_system" label="" value={itemRow?.operating_system_id}
+                      id="operating_system" label="" value={product_details?.operating_system}
                       onSelect={(data) => {
                         handleInputChange("operating_system",data)
                       }}
@@ -237,7 +242,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">Screen Size</label>
                     <SmartSelectInput
-                      id="screensize" label="" value={itemRow?.screensize_id}
+                      id="screensize" label="" value={product_details?.screensize}
                       onSelect={(data) => {
                         handleInputChange("screensize",data)
                       }}

@@ -18,7 +18,7 @@ function PendingBillingRow({ row }) {
   return (
     <tr className="bg-white even:bg-gray-50 hover:bg-blue-50 transition text-sm">
       <td className="px-3 py-2">
-        <input type="checkbox" />
+        {/* <input type="checkbox" /> */}
       </td>
       <td className="px-3 py-2 min-w-[170px]">
         <div className="font-medium text-gray-600">{productDetails?.product_name || '-'} {row.billing_type && (<span className="text-xs text-gray-500">{`[ ${row.billing_type} ]`}</span>)}</div>
@@ -298,15 +298,20 @@ export default function PendingBillingReport() {
                 </tr>
               </thead>
               <tbody>
-                {
-                  loading && (<>
+                { loading ? (
+                  <>
                     <SkeletonRow />
                   </>
-                  )
-                }
-                {!loading &&  rows.map((row) => (
+                  ) : rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-gray-400">
+                      No data found
+                    </td>
+                  </tr>
+                  ) : !loading &&  rows.map((row) => (
                   <PendingBillingRow row={row} key={row.id} />
-                ))}
+                )) 
+                }
               </tbody>
             </table>
           </div>

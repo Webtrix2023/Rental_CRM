@@ -83,7 +83,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
       const returned = data.data.filter((row) => row.action === "return");
       const delivered = data.data.filter((row) => row.action === "Delivered");
       const replaced = data.data.filter((row) => row.action === "replace");
-      const pending = data.data.filter((row) => row.is_replacement === "y" && row.replace_row_id === null);
+      const pending = data.data.filter((row) => row.is_replacement === "y" && row.replaced_product_data === null);
       const ongoing = delivered.length;
       const ret = returned.length;
       const rep = replaced.length;
@@ -146,7 +146,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
     return true;
   });
 
-  const not_replacement = equipments.filter((row) => row.is_close === 'n' && (row.is_replacement === 'n' || row.replace_row_id !== null)  );
+  const not_replacement = equipments.filter((row) => row.is_close === 'n' && (!row.replace_row_id) && (row.is_replacement == 'n' || row.replaced_product_data)  );
 
   const PAGE_SIZE = 5;
   const paged = filtered.slice((page - 1) * records_per_page, page * records_per_page);
