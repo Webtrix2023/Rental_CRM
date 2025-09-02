@@ -53,9 +53,6 @@ export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
           </div>
           <div>
             <h2 className="text-lg font-semibold">Upgrades </h2>
-            <p className="text-sm text-gray-500">
-              Product upgrades on this item by customer
-            </p>
           </div>
         </div>
 
@@ -69,20 +66,20 @@ export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
                 <div class="mr-4 flex-1">
                   <div class="font-medium text-gray-600 mb-1">
                     <span >{capitalize((line.upgrade_type || "")) || "[upgrade type]"}</span>
-                    <span>
-                      {line.old_val && line.new_val && (
-                        <span class="font-normal text-sm ml-1.5"> 
-                          upgraded from 
-                          <span className="text-blue-400 ml-2 mr-1">{line.old_val || '-'}</span>
-                           to
-                          <span className="text-blue-400 ml-1 ">{line.new_val || "-"}</span>
-                        </span>
+                    <span className="ml-1">
+                      upgraded 
+                      {line.old_val && (
+                        <span class="font-normal text-sm ml-1.5">from <span className="text-blue-400 ml-1.5">{line.old_val || '-'}</span></span>
+                      )}
+                      {line.new_val && (
+                        <span class="font-normal text-sm ml-1.5">to<span className="text-blue-400 ml-1.5">{line.new_val || '-'}</span></span>
                       )}
                     </span>
                   </div>
                   <div class="text-xs text-gray-500">
                     <span class="mr-1">{line.product_serial_no || '-'}</span>
-                    <span>| Charges Apply From: {capitalize(line.charges_apply_from)}</span>
+                    <span className="mr-1">| Charges Apply From: {capitalize(line.charges_apply_from)}</span>
+                    <span className="mr-1">| Note: {capitalize(line.Remark)}</span>
                   </div>
                 </div>
                 <div class="text-right">

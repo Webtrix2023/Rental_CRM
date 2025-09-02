@@ -81,19 +81,22 @@ export default function PendingBillingReport() {
   const [showOnlyOverdue, setShowOnlyOverdue] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
-  const [filters, setFilters] = useState({
+  const defFilter = {
     assetType: "",
     status: "",
     dateFrom: "",
     dateTo: "",
     customer_id: "",
-  })
-  const [summary, setSummary] = useState({
+    curpage: "0",
+  };
+  const defSummary = {
     "ongoing" : 0 ,
     "pending_amount" : 0 ,
     "returned_not_billed" : 0,
     "total_assets" : 0
-  });
+  };
+  const [filters, setFilters] = useState(defFilter)
+  const [summary, setSummary] = useState(defSummary);
 
   const [page, setPage] = useState(1);
   const [paging, setPaging] = useState({
@@ -115,6 +118,9 @@ export default function PendingBillingReport() {
       setRows(res.data);
       setSummary(res.summary);
       setPaging(res.paginginfo);
+    }else{
+      setRows([]);
+      setSummary(defSummary);
     }
   }
   useEffect(() => {
@@ -191,7 +197,9 @@ export default function PendingBillingReport() {
                 <SmartSelectInput
                   id="customer" label="" value={filters.customer_id}
                   onSelect={(data) => {
-                    setFilters(f => ({ ...f, customer_id: data }))
+                    if (data) {
+                      setFilters(f => ({ ...f, customer_id: data }))
+                    }
                   }}
                   onObjectSelect={() => { }}
                   config={{
@@ -316,7 +324,7 @@ export default function PendingBillingReport() {
             </table>
           </div>
           {/* Results */}
-          {/* <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500 border-t bg-gray-50 rounded-b-xl">
+          <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500 border-t bg-gray-50 rounded-b-xl">
             <span>
               Showing {paging.start + 1} -{" "}
               {Math.min(paging.end, paging.totalRecords)} of {paging.totalRecords} items
@@ -324,7 +332,7 @@ export default function PendingBillingReport() {
             <div className="flex gap-2">
               <button
                 disabled={paging.curPage === 0}
-                onClick={() => setPage(paging.curPage - 1)}
+                onClick={() => setFilters(f => ({ ...f, curpage: paging.curPage - 1 }))}
                 className={`px-3 py-1 rounded border text-sm ${paging.curPage === 0
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "bg-white hover:bg-gray-100 text-gray-700"
@@ -334,7 +342,7 @@ export default function PendingBillingReport() {
               </button>
               <button
                 disabled={(paging.curPage + 1) * paging.pageLimit >= paging.totalRecords}
-                onClick={() => setPage(paging.curPage + 1)}
+                onClick={() => setFilters(f => ({ ...f, curpage: paging.curPage + 1}))}
                 className={`px-3 py-1 rounded border text-sm ${(paging.curPage + 1) * paging.pageLimit >= paging.totalRecords
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white hover:bg-gray-100 text-gray-700"
@@ -343,7 +351,7 @@ export default function PendingBillingReport() {
                 Next
               </button>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

@@ -41,8 +41,8 @@ function ProductJourneyReport({product_id}) {
   const [product, setProduct] = useState(null);
   const [timeline, setTimeline] = useState([]);
   const formRef = useRef(null);
-  // const [productId, setProductId] = useState(product_id);
-  const [productId, setProductId] = useState(31);
+  const [productId, setProductId] = useState(product_id);
+  // const [productId, setProductId] = useState(31);
   const handleExport = (e) => {
     e.preventDefault();    
     const type = e.target.getAttribute("data-type");    
@@ -89,6 +89,7 @@ function ProductJourneyReport({product_id}) {
           const hist = data.data.product_history || [];
           // 1. Add 'Added to Inventory'
           let steps = [];
+          
           hist.reverse();
           hist.forEach((h) => {
             if (h.action === "add") {
@@ -109,7 +110,6 @@ function ProductJourneyReport({product_id}) {
                 meta: { condition: "New" },
                 footer: (
                   <>
-                    {console.log('product_details : ',product_details)}
                     <div className="flex-1">Purchase Price : ₹ {product_details?.purchase_price ?? '-'}</div>
                   </>
                 ),
@@ -132,8 +132,9 @@ function ProductJourneyReport({product_id}) {
                 meta: {},
                 footer: (
                   <>
-                    <div className="flex-1">Delivery Challan : {h.invoiceNumber || "-"}</div>
-                    <div className="flex-1">Monthly Rate :   ₹{h.rate}</div>
+                    <div className="flex-2">Delivery Challan : {h.invoiceNumber || "-"}</div>
+                    <div className="flex-1 ml-1">Monthly Rate :   ₹{h.rate}</div>
+                    <div className="flex-1">Billing :   {h.billing_type.toLowerCase().split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") || '-'}</div>
                     <div className="flex-1">Customer :   {h.customer_name || "Unknown Customer"}</div>
                   </>
                 ),
@@ -180,7 +181,7 @@ function ProductJourneyReport({product_id}) {
                 meta: { condition: "Good" },
                 footer: (
                   <>
-                    <div className="flex-1">Rental Days : {h.rental_days || 0}</div>
+                    {/* <div className="flex-1">Rental Days : {h.rental_days || 0}</div> */}
                     {/* <div className="flex-1">Revenue :   ₹{h.revenue || 0}</div>
                     <div className="flex-1">Condition :   {h.condition || "Good"}</div> */}
                   </>
@@ -365,7 +366,7 @@ function ProductJourneyReport({product_id}) {
               <div>
                 <div className="text-xs text-gray-500">Rental Cycles</div>
                 <div className="font-bold text-blue-600 text-lg">
-                  {product.rental_cycles || 0}
+                  {(product?.completed ?? 0) + (product?.ongoing ?? 0)}
                 </div>
               </div>
 

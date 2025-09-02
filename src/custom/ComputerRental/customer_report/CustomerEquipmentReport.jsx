@@ -226,7 +226,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
           >
             <option>All Types</option>
             <option value="NEW">New</option>
-            <option value="REPL">REPL</option>
+            <option value="REPL">Replacement</option>
           </select>
         </div>
         <div className="w-full md:w-auto">
