@@ -18,6 +18,8 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
     if (!isOpen) return;
 
     setProductDetails(itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {})
+    console.log('product_details 1 : ',product_details);
+    
 
     switch (action) {
       case 'return':
@@ -40,10 +42,11 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
       ['invoice_id']: invoice_id,
       ['product_id']: product_id,
       ['old_hdd_capacity']: product_details.hdd_capacity || null,
-      ['old_memory']: product_details.memory_id || null,
+      ['old_memory']: product_details.memory || null,
       ['old_operating_system']: product_details.operating_system || null,
       ['old_screensize']: product_details.screensize || null,
     }));
+    console.log('payload 1 : ',payload);
 
   }, [isOpen, action]);
 

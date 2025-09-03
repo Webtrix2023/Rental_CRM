@@ -79,7 +79,9 @@ export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
                   <div class="text-xs text-gray-500">
                     <span class="mr-1">{line.product_serial_no || '-'}</span>
                     <span className="mr-1">| Charges Apply From: {capitalize(line.charges_apply_from)}</span>
-                    <span className="mr-1">| Note: {capitalize(line.Remark)}</span>
+                  </div>
+                  <div class="text-xs text-gray-500 mt-2 pt-1 border-t-1 border-t-gray-200">
+                    <p className="mr-1">Note: {capitalize(line.Remark)}</p>
                   </div>
                 </div>
                 <div class="text-right">

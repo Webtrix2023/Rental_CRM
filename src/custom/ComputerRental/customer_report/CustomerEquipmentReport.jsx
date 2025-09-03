@@ -4,7 +4,7 @@ import { fetchJson } from "@utils/fetchJson";
 import { ReportExport } from "./ReportExport";
 import { ActionPopup } from "./ActionPopup";
 import { UpgradePopup } from "./UpgradePopup";
-import { ReplaceAll, Laptop, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown , BadgeInfo , ArrowUpFromLine } from "lucide-react";
+import { ReplaceAll,MessageCircleWarning, Laptop, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown , BadgeInfo , ArrowUpFromLine } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
 
 
@@ -309,7 +309,8 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                 </tr>
               ) : (
                 paged.map((row, idx) => (
-                  <tr key={idx} className="border-b text-sm">
+                  <>
+                  <tr key={idx} className="text-sm">
                     <td className="py-3">
                       <div className="font-medium text-gray-700">
                         {row.invoiceLineNarr || "-"}
@@ -384,6 +385,22 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                       )}
                     </td>
                   </tr>
+                  <tr key={idx+1} className="border-b border-b-gray-400  text-sm">
+                    {row.note && 
+                      <>
+                        <td colSpan={7}>
+                          <div className="flex items-start align-middle gap-2 bg-yellow-50 p-1 shadow-sm border border-yellow-50">
+                            <MessageCircleWarning className="text-orange-800 mt-1" size={16} />
+                            <span className="text-sm text-gray-600 font-sm mr-0.5">Note:</span>
+                            <span className="text-sm text-gray-600 font-sm">
+                              {row.note || "No additional notes"}
+                            </span>
+                          </div>
+                        </td>
+                      </>
+                    }
+                  </tr>
+                  </>
                 ))
               )}
             </tbody>

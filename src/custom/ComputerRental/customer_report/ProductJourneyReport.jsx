@@ -1,8 +1,8 @@
 import { API_BASE_URL } from "@config";
-import { Plus ,BadgeQuestionMark ,Truck , ArrowUp ,RotateCcw,Laptop,LaptopMinimal,Smartphone} from "lucide-react";
+import { Plus, MessageCircleWarning, Truck, ArrowUp, RotateCcw, Laptop, LaptopMinimal, Smartphone } from "lucide-react";
 import { fetchJson } from "@utils/fetchJson";
 import ProductSearchInput from "../Delivery/ProductSearchInput";
-import React, { useEffect, useState , useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { SmartSelectInput } from "@components/index";
 // Utility
 function formatDate(dateStr) {
@@ -35,8 +35,20 @@ const TIMELINE_COLORS = {
   on_rent: "bg-blue-400",
   other: "bg-gray-300",
 };
+function Note({ note }) {
+  if (!note) return null;
+  return (
+    <div className="flex items-start align-middle gap-2 mt-2 p-2 bg-yellow-50 border border-yellow-50">
+      <MessageCircleWarning className="text-orange-800 mt-1" size={16} />
+      <span className="text-sm text-gray-600 font-sm mr-0.5">Note:</span>
+      <span className="text-sm text-gray-600 font-sm">
+        {note || "No additional notes"}
+      </span>
+    </div>
+  );
+}
 
-function ProductJourneyReport({product_id}) {
+function ProductJourneyReport({ product_id }) {
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState(null);
   const [timeline, setTimeline] = useState([]);
@@ -44,8 +56,8 @@ function ProductJourneyReport({product_id}) {
   const [productId, setProductId] = useState(product_id);
   // const [productId, setProductId] = useState(31);
   const handleExport = (e) => {
-    e.preventDefault();    
-    const type = e.target.getAttribute("data-type");    
+    e.preventDefault();
+    const type = e.target.getAttribute("data-type");
     const form = formRef.current;
 
     if (!form) return;
@@ -58,7 +70,7 @@ function ProductJourneyReport({product_id}) {
       form.appendChild(dataInput);
     }
     const bodyJson = {
-      "type" : type
+      "type": type
     };
     dataInput.value = JSON.stringify(bodyJson);
     form.action = `${API_BASE_URL}/exportProductReport/${productId}`;
@@ -68,17 +80,17 @@ function ProductJourneyReport({product_id}) {
     form.submit();
 
     setTimeout(() => {
-        form.action = "#";
-        form.method = "POST";
-        form.target = "";
+      form.action = "#";
+      form.method = "POST";
+      form.target = "";
     }, 100);
   };
 
   useEffect(() => {
     if (!productId) { return }
     setLoading(true);
-    fetchJson(`${API_BASE_URL}/productHistory/${productId}`,{
-        method:'get'
+    fetchJson(`${API_BASE_URL}/productHistory/${productId}`, {
+      method: 'get'
     })
       .then((res) => res)
       .then((data) => {
@@ -89,17 +101,17 @@ function ProductJourneyReport({product_id}) {
           const hist = data.data.product_history || [];
           // 1. Add 'Added to Inventory'
           let steps = [];
-          
+
           hist.reverse();
           hist.forEach((h) => {
             if (h.action === "add") {
               steps.push({
                 type: "add",
                 title: "Added to Inventory",
-                icon : (
+                icon: (
                   <div className="bg-blue-600 text-white p-1.5 rounded-full flex items-center justify-center">
                     <Plus size={9} strokeWidth={4} />
-                  </div>  
+                  </div>
                 ),
                 desc: (
                   <>
@@ -118,14 +130,14 @@ function ProductJourneyReport({product_id}) {
               steps.push({
                 type: "delivered",
                 title: (h.is_first_rental == 'y') ? "First Delivery" : 'Delivered',
-                icon : (
+                icon: (
                   <div className="rounded-full flex items-center justify-center">
                     <Truck size={20} fill="green" strokeWidth={0} />
-                  </div>  
+                  </div>
                 ),
                 desc: (
                   <>
-                    Delivered to {h.customer_name || "Unknown Customer"}           
+                    Delivered to {h.customer_name || "Unknown Customer"}
                   </>
                 ),
                 date: formatDate(h.invoiceDate),
@@ -143,10 +155,10 @@ function ProductJourneyReport({product_id}) {
               steps.push({
                 type: "returned",
                 title: "Returned to Inventory",
-                icon : (
+                icon: (
                   <div className="text-red-500 rounded-full flex items-center justify-center">
                     <RotateCcw size={17} strokeWidth={3} />
-                  </div>  
+                  </div>
                 ),
                 desc: (
                   <>
@@ -162,15 +174,16 @@ function ProductJourneyReport({product_id}) {
                     <div className="flex-1">Condition :   {h.condition || "Good"}</div> */}
                   </>
                 ),
+                note: <Note note={h.note} />,
               });
             } else if (h.action === "replace") {
               steps.push({
                 type: "replaced",
                 title: "Returned to Inventory",
-                icon : (
+                icon: (
                   <div className="text-red-500 rounded-full flex items-center justify-center">
                     <RotateCcw size={17} strokeWidth={3} />
-                  </div>  
+                  </div>
                 ),
                 desc: (
                   <>
@@ -186,15 +199,16 @@ function ProductJourneyReport({product_id}) {
                     <div className="flex-1">Condition :   {h.condition || "Good"}</div> */}
                   </>
                 ),
+                note: <Note note={h.note} />,
               });
             } else if (h.old_configuration || h.new_configuration) {
               steps.push({
                 type: "config",
                 title: `Configuration Change: ${h.configuration}`,
-                icon : (
+                icon: (
                   <div className="text-yellow-500 p-1 rounded-full flex items-center justify-center">
                     <ArrowUp size={20} strokeWidth={3} />
-                  </div>  
+                  </div>
                 ),
                 desc: (
                   <>
@@ -202,7 +216,7 @@ function ProductJourneyReport({product_id}) {
                       <>
                         {h.old_configuration ? (
                           <>
-                            {console.log('h.new_configuration :',h.new_configuration)}
+                            {console.log('h.new_configuration :', h.new_configuration)}
                             Changed from {h.old_configuration} to {h.new_configuration ?? " - "}
                           </>
                         ) : (
@@ -215,16 +229,18 @@ function ProductJourneyReport({product_id}) {
                   </>
                 ),
                 footer: (
-                   <>
+                  <>
                     {h.charges && <div className="flex-1">Upgrade Cost :   ₹{h.charges || 0}</div>}
                     {h.charges && <div className="flex-1">New Rate :   ₹{h.charges || 0}</div>}
                     {h.charges_apply_from && <div className="flex-1">Effective From : {h.charges_apply_from || "-"}</div>}
                   </>
                 ),
+                note: <Note note={h.note} />,
+              
                 date: formatDate(h.created_date),
                 meta: {},
               });
-            } 
+            }
             // else {
             //   // Other actions, just in case
             //   steps.push({
@@ -280,21 +296,21 @@ function ProductJourneyReport({product_id}) {
           </button> */}
         </div>
       </div>
-              
-        <div className="max-w-5xl mx-auto gap-3 md:gap-8 mt-8 bg-white shadow rounded-xl px-3 md:px-8 py-5 md:py-7 items-center">
-            <div className="grid grid-cols-7 gap-3">
-                <div className="col-span-3">
-                  <ProductSearchInput
-                    value={safeParse(product)} 
-                    stockCheckDisable={true}
-                    onChange={(prod) =>{
-                      if (prod) {
-                        setProductId(prod.product_id)
-                      }
-                    } }/>
-                </div>
-              </div>
+
+      <div className="max-w-5xl mx-auto gap-3 md:gap-8 mt-8 bg-white shadow rounded-xl px-3 md:px-8 py-5 md:py-7 items-center">
+        <div className="grid grid-cols-7 gap-3">
+          <div className="col-span-3">
+            <ProductSearchInput
+              value={safeParse(product)}
+              stockCheckDisable={true}
+              onChange={(prod) => {
+                if (prod) {
+                  setProductId(prod.product_id)
+                }
+              }} />
+          </div>
         </div>
+      </div>
       {/* Product Summary Card */}
       {product && (
         <div className="max-w-5xl mx-auto gap-3 md:gap-8 mt-8 bg-white shadow rounded-xl px-3 md:px-8 py-5 md:py-7 items-center">
@@ -366,7 +382,7 @@ function ProductJourneyReport({product_id}) {
               <div>
                 <div className="text-xs text-gray-500">Rental Cycles</div>
                 <div className="font-bold text-blue-600 text-lg">
-                  {(product?.completed ?? 0) + (product?.ongoing ?? 0)}
+                  {product?.completed ?? 0}
                 </div>
               </div>
 
@@ -389,16 +405,16 @@ function ProductJourneyReport({product_id}) {
         <div className="flex items-center justify-between mb-4">
           <div className="font-semibold text-lg">Product Journey Timeline</div>
           {timeline.length !== 0 && (
-          <form ref={formRef}>
-            <div className="flex gap-0.5 items-center">
-              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-semibold text-sm flex items-center gap-2" data-type="pdf" onClick={handleExport}>
-                Export Pdf
-              </button>
-              <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded font-semibold text-sm flex items-center gap-2" data-type="excel" onClick={handleExport}>
-                Export Excel
-              </button>
-            </div>
-          </form>)}
+            <form ref={formRef}>
+              <div className="flex gap-0.5 items-center">
+                <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-semibold text-sm flex items-center gap-2" data-type="pdf" onClick={handleExport}>
+                  Export Pdf
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded font-semibold text-sm flex items-center gap-2" data-type="excel" onClick={handleExport}>
+                  Export Excel
+                </button>
+              </div>
+            </form>)}
         </div>
         <div className="relative pl-5">
           <div className="absolute top-0 left-2 w-0.5 bg-gray-200 h-full" />
@@ -419,13 +435,11 @@ function ProductJourneyReport({product_id}) {
                       {event.date}
                     </div>
                   </div>
-
                   <div className="font-inter font-normal text-[14px] leading-[12px] p-1.5 tracking-normal text-[#5F6A6A]">{event.desc}</div>
-                  
                   <div className="p-1.5 font-inter font-normal tracking-normal text-[#000000] text-[14px]  leading-[12px] flex items-center space-x-2 w-full">
                     {event.footer}
                   </div>
-
+                  {event.note}
                 </div>
               </li>
             ))}
@@ -437,7 +451,7 @@ function ProductJourneyReport({product_id}) {
         <div className="bg-white rounded-xl shadow px-5 py-6">
           <div className="font-semibold mb-1">Revenue Breakdown</div>
           <div className="text-sm flex flex-col gap-1">
-            <div className="flex justify-between"><span>First Rental ({product?.first_rental_days ?? 0 } days)</span><span>₹ {product?.first_rental_revenue ?? 0 }</span></div>
+            <div className="flex justify-between"><span>First Rental ({product?.first_rental_days ?? 0} days)</span><span>₹ {product?.first_rental_revenue ?? 0}</span></div>
             <div className="flex justify-between"><span>Current Rental ({product?.current_rental_days ?? 0} days)</span><span>₹ {product?.current_rental_revenue ?? 0}</span></div>
           </div>
           <div className="mt-2 flex justify-between font-semibold">
@@ -451,9 +465,9 @@ function ProductJourneyReport({product_id}) {
           <div className="font-semibold mb-1">Utilization Stats</div>
           <div className="text-sm flex flex-col gap-1">
             <div className="flex justify-between"><span>Total Days</span><span>{product?.total_available_days ?? 0} days</span></div>
-            <div className="flex justify-between"><span>Days on Rent</span><span>{ product?.total_rental_days ?? 0 } days</span></div>
-            <div className="flex justify-between"><span>Idle Days</span><span>{ product?.idle_days ?? 0 } days</span></div>
-            <div className="flex justify-between"><span>Utilization Rate</span><span className="text-orange-600">{ product?.utilization_rate ?? 0}%</span></div>
+            <div className="flex justify-between"><span>Days on Rent</span><span>{product?.total_rental_days ?? 0} days</span></div>
+            <div className="flex justify-between"><span>Idle Days</span><span>{product?.idle_days ?? 0} days</span></div>
+            <div className="flex justify-between"><span>Utilization Rate</span><span className="text-orange-600">{product?.utilization_rate ?? 0}%</span></div>
           </div>
         </div>
       </div>
