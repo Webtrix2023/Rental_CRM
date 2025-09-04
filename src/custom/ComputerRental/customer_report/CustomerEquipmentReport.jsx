@@ -177,12 +177,17 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
               }}
               onObjectSelect={() => { }}
               config={{
-                type: 'customer', valueKey: 'customer_id', source: 'customer',
+                type: 'customer', valueKey: 'customer_id',
+                source: 'customer',
                 getLabel: (item) => `${item.name}`,
                 getValue: (item) => item.customer_id,
                 placeholder: 'Select Customer',
                 list: "name,customer_id",
-                allowAddNew: true, preload: true, cache: true, showRecent: true
+                allowAddNew: true,
+                preload: true,
+                cache: true,
+                statusCheck: true,
+                showRecent: true
               }}
             />
           </div>

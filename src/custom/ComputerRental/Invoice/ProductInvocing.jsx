@@ -91,6 +91,42 @@ export default function ProductInvocing() {
   return lastBillDate < today; // true if passed
 }
 
+  const canBillReturnedProduct = (invoiceDate, lastBillDate, returnDate, billing_type) => {
+    const date1 = new Date(invoiceDate);
+    const date2 = lastBillDate ? new Date(lastBillDate) : null;
+    const returnDt = returnDate ? new Date(returnDate) : null;
+
+    // 1. If never billed → allow once
+    if (!date2) return true;
+
+    // 2. If trying to bill after return date → not allowed
+    if (returnDt && date1 > returnDt) return false;
+
+    // 3. If trying to bill in the same month as last bill → not allowed
+    if (billing_type === "monthly" || billing_type === "contract") {
+      const sameMonth =
+        date1.getMonth() === date2.getMonth() &&
+        date1.getFullYear() === date2.getFullYear();
+      if (sameMonth) return false;
+    } else {
+      // for daily/other billing → block same date
+      if (date1.toDateString() === date2.toDateString()) return false;
+    }
+
+    // 4. If last bill was more than 2 months before return date → allow (catch-up billing)
+    if (
+      returnDt &&
+      (returnDt.getMonth() - date2.getMonth() +
+        12 * (returnDt.getFullYear() - date2.getFullYear())) >= 2
+    ) {
+      return true;
+    }
+
+    // 5. Otherwise, don't allow (already billed before closure)
+    return false;
+  };
+
+
   const compareDate = (invoiceDate, lastBillDate, billing_type) => {
     if (!lastBillDate) return true; // no last bill → billing allowed
 
@@ -107,10 +143,15 @@ export default function ProductInvocing() {
     // daily/other billing types
     return date1 > date2;
   };
-
-  const isDisabled = (a) =>
-    a.row_close === "y" ||
-    !compareDate(invoiceDetails.billingDate, a.last_bill_date, a.billing_type);
+  const isDisabled = (a)=> {
+    console.log('a :', a);
+    if (a.row_close === "y" && !canBillReturnedProduct(invoiceDetails.billingDate,a.last_bill_date,a.returnDate, a.billing_type)) {
+      return true;
+    }else if (a.row_close === "n" && !compareDate(invoiceDetails.billingDate, a.last_bill_date, a.billing_type)){
+      return true;
+    }
+    return false;   
+  }
 
   const getDeliveries = () => {
     if (!invoiceDetails.customerId) {
@@ -318,6 +359,7 @@ export default function ProductInvocing() {
               allowAddNew: true,
               preload: true,
               cache: true,
+              statusCheck: true,
               showRecent: true,
             }}
           />
@@ -392,6 +434,9 @@ export default function ProductInvocing() {
         ) : (
           assets.map((a) => {
             const disabled = (a.revenue == 0) || isDisabled(a);
+
+            console.log('disabled : ',disabled);
+            
             return (
               <div
                 key={a.itemID}

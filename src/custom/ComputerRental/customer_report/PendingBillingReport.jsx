@@ -208,6 +208,7 @@ export default function PendingBillingReport() {
                     getValue: (item) => item.customer_id,
                     placeholder: 'Select Customer',
                     list: "name,customer_id",
+                    statusCheck: true,
                     allowAddNew: true, preload: true, cache: true, showRecent: true
                   }}
                 />

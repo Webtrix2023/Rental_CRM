@@ -82,7 +82,7 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
   const handleSave = async () => {
     // Simple validation
     if (action === "return") {
-      if (!payload?.gr_no || !payload?.return_date || !payload?.reason) {
+      if (!payload?.return_date || !payload?.reason) {
         toast.error("Please fill all required return fields.");
         return;
       }
@@ -162,7 +162,7 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
             {/* RETURN PRODUCT FORM */}
             {action == 'return' &&
               <div>
-                <label className="text-sm font-medium text-gray-700"> GRN (Document No.)<span className="text-red-500">*</span> </label>
+                <label className="text-sm font-medium text-gray-700"> GRN (Document No.)<span className="text-red-500"></span> </label>
                 <input type="text" placeholder="Enter GRN document number" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required onChange={(e) => { handleInputChange('gr_no', e.target.value); }} />
               </div>
             }
@@ -253,7 +253,7 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
                       }}
                     />
                   </div>
-                  <div className="w-full md:w-1/2">
+                  {/* <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">Screen Size</label>
                     <SmartSelectInput
                       id="screensize" label="" value={product_details?.screensize}
@@ -270,7 +270,7 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
                         allowAddNew: false, preload: true, cache: true, showRecent: true
                       }}
                     />
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="w-full md:w-1/2">

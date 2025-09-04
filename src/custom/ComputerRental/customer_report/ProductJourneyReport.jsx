@@ -209,7 +209,7 @@ function ProductJourneyReport({ product_id }) {
             } else if (h.old_configuration || h.new_configuration) {
               steps.push({
                 type: "config",
-                title: `Configuration Change: ${h.configuration}`,
+                title: `Configuration Change: ${capitalize(h.configuration)}`,
                 icon: (
                   <div className="text-yellow-500 p-1 rounded-full flex items-center justify-center">
                     <ArrowUp size={20} strokeWidth={3} />
@@ -240,6 +240,12 @@ function ProductJourneyReport({ product_id }) {
                       </span>
                       <span className="mr-1">
                         | Effective From : {capitalize(h.charges_apply_from) || "-"}
+                      </span>
+                      <span className="mr-1">
+                        | Last Rate : {h.last_rate || "0"}
+                      </span>
+                      <span className="mr-1">
+                        | <span className="">New Rate : { (parseInt(h.last_rate) || 0) + (parseInt(h.charges) || 0) } {`(${parseInt(h.last_rate) || 0} + ${parseInt(h.charges || 0 )})`}</span>
                       </span>
                     </div>}
                   </>
