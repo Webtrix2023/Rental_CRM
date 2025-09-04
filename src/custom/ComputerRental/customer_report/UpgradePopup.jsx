@@ -58,7 +58,7 @@ export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
 
         {loading &&
           <SkeletonRow />}
-        <div className="overflow-y-auto h-120">
+        <div className="overflow-y-auto h-[30rem]">
         {!loading && (
           itemRow?.upgradeLines?.map((line) => {
             return (

@@ -34,7 +34,11 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
       default:
         setPayload(null);
     }
-
+    console.log('product_details.hdd_capacity:',product_details.hdd_capacity);
+    console.log('product_details.memory:',product_details.memory);
+    console.log('product_details.operating_system:',product_details.operating_system);
+    console.log('product_details.screensize:',product_details.screensize);
+    
     setPayload((prev) => ({
       ...prev,
       ['customer_id']: customer_id,
