@@ -19,6 +19,11 @@ function safeParse(obj) {
     return null;
   }
 }
+function capitalize(str) {
+  if (!str) return '';
+  str = str.replace('_', ' ')
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
 function TimelineDot({ color }) {
   return (
     <span className={`inline-block w-3 h-3 rounded-full mr-3 ${color}`} />
@@ -53,8 +58,8 @@ function ProductJourneyReport({ product_id }) {
   const [product, setProduct] = useState(null);
   const [timeline, setTimeline] = useState([]);
   const formRef = useRef(null);
-  const [productId, setProductId] = useState(product_id);
-  // const [productId, setProductId] = useState(31);
+  // const [productId, setProductId] = useState(product_id);
+  const [productId, setProductId] = useState(13);
   const handleExport = (e) => {
     e.preventDefault();
     const type = e.target.getAttribute("data-type");
@@ -216,7 +221,6 @@ function ProductJourneyReport({ product_id }) {
                       <>
                         {h.old_configuration ? (
                           <>
-                            {console.log('h.new_configuration :', h.new_configuration)}
                             Changed from {h.old_configuration} to {h.new_configuration ?? " - "}
                           </>
                         ) : (
@@ -230,13 +234,18 @@ function ProductJourneyReport({ product_id }) {
                 ),
                 footer: (
                   <>
-                    {h.charges && <div className="flex-1">Upgrade Cost :   ₹{h.charges || 0}</div>}
-                    {h.charges && <div className="flex-1">New Rate :   ₹{h.charges || 0}</div>}
-                    {h.charges_apply_from && <div className="flex-1">Effective From : {h.charges_apply_from || "-"}</div>}
+                    {h.charges && <div className="flex-1 text-gray-600">
+                      <span className="mr-1">
+                        Upgrade Charges :   ₹{h.charges || 0}
+                      </span>
+                      <span className="mr-1">
+                        | Effective From : {capitalize(h.charges_apply_from) || "-"}
+                      </span>
+                    </div>}
                   </>
                 ),
                 note: <Note note={h.note} />,
-              
+
                 date: formatDate(h.created_date),
                 meta: {},
               });
@@ -373,7 +382,7 @@ function ProductJourneyReport({ product_id }) {
               </div>
 
               <div>
-                <div className="text-xs text-gray-500">Total Revenue</div>
+                <div className="text-xs text-gray-500">Total Revenue (Tentative)</div>
                 <div className="font-bold text-green-600 text-lg">
                   ₹ {product.total_revenues || 0}
                 </div>

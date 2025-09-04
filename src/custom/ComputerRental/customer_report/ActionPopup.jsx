@@ -8,8 +8,8 @@ import { defaultReplaceModel, defaultUpgradeModel, defaultReturnModel } from "./
 
 
 
-export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, invoice_id , product_id ,action, isOpen, onClose, onSubmit ,refreshCustomerReport}) => {
-  
+export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, invoice_id, product_id, action, isOpen, onClose, onSubmit, refreshCustomerReport }) => {
+
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState(null);
   const [product_details, setProductDetails] = useState({});
@@ -18,8 +18,8 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
     if (!isOpen) return;
 
     setProductDetails(itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {})
-    console.log('product_details 1 : ',product_details);
-    
+    console.log('product_details 1 : ', product_details);
+
 
     switch (action) {
       case 'return':
@@ -34,7 +34,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
       default:
         setPayload(null);
     }
-    
+
     setPayload((prev) => ({
       ...prev,
       ['customer_id']: customer_id,
@@ -46,7 +46,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
       ['old_operating_system']: product_details.operating_system || null,
       ['old_screensize']: product_details.screensize || null,
     }));
-    console.log('payload 1 : ',payload);
+    console.log('payload 1 : ', payload);
 
   }, [isOpen, action]);
 
@@ -58,7 +58,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
     const today = new Date();
     d.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
-    
+
     return d.getTime() === today.getTime();
   };
   const handleInputChange = (field, value) => {
@@ -89,7 +89,7 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
     }
 
     if (action === "upgrade") {
-      if ( !payload?.upgrade_date || !payload?.charges_apply_from || !payload?.upgrade_charges ) {
+      if (!payload?.upgrade_date || !payload?.charges_apply_from || !payload?.upgrade_charges) {
         toast.error("Please fill all required upgrade fields.");
         return;
       }
@@ -122,17 +122,17 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
 
     setLoading(false);
 
-    if(res?.flag === "S"){
+    if (res?.flag === "S") {
       onClose();
       toast.success(`Item ${action}ed !`);
       refreshCustomerReport()
-    }else{
+    } else {
       toast.error(`Error while updating item (${res.status})`);
     }
   };
 
-  console.log('product_details :',product_details);
-  
+  console.log('product_details :', product_details);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#8f8f8fab] bg-opacity-40 px-4">
       <div className="bg-white w-full max-w-xl rounded-xl shadow-lg p-6 relative">
@@ -152,60 +152,63 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
         </div>
 
         {loading && <h1 className="text-center">Loading...</h1>}
-
         {!loading && (
           <form className="space-y-4" target="#">
 
             {/* RETURN PRODUCT FORM */}
-            { action == 'return' && 
+            {action == 'return' &&
               <div>
                 <label className="text-sm font-medium text-gray-700"> GRN (Document No.)<span className="text-red-500">*</span> </label>
-                <input type="text" placeholder="Enter GRN document number" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required onChange={(e)=>{handleInputChange('gr_no',e.target.value);}} />
+                <input type="text" placeholder="Enter GRN document number" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required onChange={(e) => { handleInputChange('gr_no', e.target.value); }} />
               </div>
             }
 
             <div>
               <label className="text-sm font-medium text-gray-700">{capitalize(action)} Date<span className="text-red-500">*</span></label>
-              <input type="date" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={payload?.[action + "_date"] || ""} required onChange={(e)=>{handleInputChange(`${action}_date`,e.target.value);}} />
+              <input type="date" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={payload?.[action + "_date"] || ""} required onChange={(e) => { handleInputChange(`${action}_date`, e.target.value); }} />
             </div>
 
-            { action == 'return' && 
+            {action == 'return' &&
               <div>
                 <label className="text-sm font-medium text-gray-700">Return Reason<span className="text-red-500">*</span></label>
                 <SmartSelectInput
                   id="reason" label="" value={''}
                   onSelect={(data) => {
-                    handleInputChange("reason",data)
+                    handleInputChange("reason", data)
                   }}
-                  onObjectSelect={()=>{}}
-                  config={{type: 'category',valueKey:'category_id',source: 'reason',
-                  getLabel: (item) => `${item.categoryName}`,
-                  getValue: (item) => item.categoryName,
-                  placeholder: 'Select Reason',
-                  list:"categoryName,category_id",
-                  allowAddNew: false,preload: true,cache: true,showRecent: true}}
+                  onObjectSelect={() => { }}
+                  config={{
+                    type: 'category', valueKey: 'category_id', source: 'reason',
+                    getLabel: (item) => `${item.categoryName}`,
+                    getValue: (item) => item.categoryName,
+                    placeholder: 'Select Reason',
+                    list: "categoryName,category_id",
+                    allowAddNew: false, preload: true, cache: true, showRecent: true
+                  }}
                 />
               </div>
             }
 
             {/* UPGRADE PRODUCT FORM */}
-            { action == 'upgrade' && 
-              <>                
+            {action == 'upgrade' &&
+              <>
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700">HDD Capacity</label>
                     <SmartSelectInput
                       id="hdd_capacity" label="" value={product_details?.hdd_capacity}
                       onSelect={(data) => {
-                        handleInputChange("hdd_capacity",data)
+                        handleInputChange("hdd_capacity", data)
                       }}
-                      onObjectSelect={()=>{}}
-                      config={{type: 'category',valueKey:'category_id',source: 'hdd_capacity',
-                      getLabel: (item) => `${item.categoryName}`,
-                      getValue: (item) => item.category_id,
-                      placeholder: 'Select HDD Capacity',
-                      list:"categoryName,category_id",
-                      allowAddNew: false,preload: true,cache: true,showRecent: true}}
+                      onObjectSelect={() => { }}
+                      config={{
+                        type: 'category', valueKey: 'category_id', source: 'hdd_capacity',
+                        getLabel: (item) => `${item.categoryName}`,
+                        getValue: (item) => item.category_id,
+                        placeholder: 'Select HDD Capacity',
+                        list: "categoryName,category_id",
+                        allowAddNew: false, preload: true, cache: true, showRecent: true
+                      }}
                     />
                   </div>
                   <div className="w-full md:w-1/2">
@@ -213,15 +216,17 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                     <SmartSelectInput
                       id="memory" label="" value={product_details?.memory}
                       onSelect={(data) => {
-                        handleInputChange("memory",data)
+                        handleInputChange("memory", data)
                       }}
-                      onObjectSelect={()=>{}}
-                      config={{type: 'category',valueKey:'category_id',source: 'memory',
-                      getLabel: (item) => `${item.categoryName}`,
-                      getValue: (item) => item.category_id,
-                      placeholder: 'Select Memory',
-                      list:"categoryName,category_id",
-                      allowAddNew: false,preload: true,cache: true,showRecent: true}}
+                      onObjectSelect={() => { }}
+                      config={{
+                        type: 'category', valueKey: 'category_id', source: 'memory',
+                        getLabel: (item) => `${item.categoryName}`,
+                        getValue: (item) => item.category_id,
+                        placeholder: 'Select Memory',
+                        list: "categoryName,category_id",
+                        allowAddNew: false, preload: true, cache: true, showRecent: true
+                      }}
                     />
                   </div>
                 </div>
@@ -231,15 +236,17 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                     <SmartSelectInput
                       id="operating_system" label="" value={product_details?.operating_system}
                       onSelect={(data) => {
-                        handleInputChange("operating_system",data)
+                        handleInputChange("operating_system", data)
                       }}
-                      onObjectSelect={()=>{}}
-                      config={{type: 'category',valueKey:'category_id',source: 'operating_system',
-                      getLabel: (item) => `${item.categoryName}`,
-                      getValue: (item) => item.category_id,
-                      placeholder: 'Select Operating System',
-                      list:"categoryName,category_id",
-                      allowAddNew: false,preload: true,cache: true,showRecent: true}}
+                      onObjectSelect={() => { }}
+                      config={{
+                        type: 'category', valueKey: 'category_id', source: 'operating_system',
+                        getLabel: (item) => `${item.categoryName}`,
+                        getValue: (item) => item.category_id,
+                        placeholder: 'Select Operating System',
+                        list: "categoryName,category_id",
+                        allowAddNew: false, preload: true, cache: true, showRecent: true
+                      }}
                     />
                   </div>
                   <div className="w-full md:w-1/2">
@@ -247,29 +254,31 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
                     <SmartSelectInput
                       id="screensize" label="" value={product_details?.screensize}
                       onSelect={(data) => {
-                        handleInputChange("screensize",data)
+                        handleInputChange("screensize", data)
                       }}
-                      onObjectSelect={()=>{}}
-                      config={{type: 'category',valueKey:'category_id',source: 'screensizes',
-                      getLabel: (item) => `${item.categoryName}`,
-                      getValue: (item) => item.category_id,
-                      placeholder: 'Select Screen Size',
-                      list:"categoryName,category_id",
-                      allowAddNew: false,preload: true,cache: true,showRecent: true}}
+                      onObjectSelect={() => { }}
+                      config={{
+                        type: 'category', valueKey: 'category_id', source: 'screensizes',
+                        getLabel: (item) => `${item.categoryName}`,
+                        getValue: (item) => item.category_id,
+                        placeholder: 'Select Screen Size',
+                        list: "categoryName,category_id",
+                        allowAddNew: false, preload: true, cache: true, showRecent: true
+                      }}
                     />
                   </div>
                 </div>
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700"> Charges <span className="text-red-500">*</span> </label>
-                    <input type="text" placeholder="Enter upgrade charges" className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required onChange={(e)=>{handleInputChange('upgrade_charges',e.target.value);}} />
+                    <input type="text" placeholder="Enter upgrade charges" className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required onChange={(e) => { handleInputChange('upgrade_charges', e.target.value); }} />
                   </div>
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700"> Charges Apply From <span className="text-red-500">*</span> </label>
                     <select id="charges_apply_from" className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       value={payload?.charges_apply_from || ""}
-                      onChange={(e)=>{
-                        handleInputChange("charges_apply_from",e.target.value)
+                      onChange={(e) => {
+                        handleInputChange("charges_apply_from", e.target.value)
                       }}
                     >
                       <option value="this_month" >This Month</option>
@@ -281,32 +290,37 @@ export const ActionPopup = ({ not_replacement , itemRow ,itemID, customer_id, in
             }
 
             {/* REPLACE PRODUCT FORM */}
-            { action == 'replace' && 
-            <div className="">
-              <label className="text-sm font-medium text-gray-700">Select Replacement<span className="text-red-500">*</span></label>
-              <select className="ws-input form-input w-full text-gray-600 text-md bg-gray-100 rounded focus:outline-none text-sm px-3 py-2 pr-10 rounded" name="Charges apply from" onChange={ (e)=>{handleInputChange('replaced_row_id',e.target.value);} }>
-                <option value=''>Select Replacement</option>
-                {not_replacement && not_replacement.map((item, index) => (
-                  <option key={index} value={item.itemID}>{`${item.product_serial_no}`}</option>
-                ))}
-              </select>
-            </div>}
+            {action == 'replace' &&
+              <div className="">
+                <label className="text-sm font-medium text-gray-700">Select Replacement<span className="text-red-500">*</span></label>
+                <select className="ws-input form-input w-full text-gray-600 text-md bg-gray-100 rounded focus:outline-none text-sm px-3 py-2 pr-10 rounded" name="Charges apply from" onChange={(e) => { handleInputChange('replaced_row_id', e.target.value); }}>
+                  <option value=''>Select Replacement</option>
+                  {console.log('item : ', not_replacement)}
+                  {not_replacement && not_replacement.map((item, index) => {
+                    const product = JSON.parse(item.productObject);
+                    return (
+                      <option key={index} value={item.itemID}>{`${product.product_name || ''} (${product.product_serial_no})`}</option>
+                    )
+                  })}
+                </select>
+              </div>}
 
             <div>
               <label className="text-sm font-medium text-gray-700">Additional Notes</label>
-              <textarea placeholder={`Add any additional notes about the ${action}...`} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows={2} onChange={(e)=>{handleInputChange('remark',e.target.value);}}></textarea>
+              <textarea placeholder={`Add any additional notes about the ${action}...`} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows={2} onChange={(e) => { handleInputChange('remark', e.target.value); }}></textarea>
             </div>
-            
+
             <div className="flex justify-end space-x-2 pt-4">
               <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100">Cancel </button>
-              <button type="submit" className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700" onClick={ (e) => {
+              <button type="submit" className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700" onClick={(e) => {
                 e.preventDefault();
-                handleSave();       
+                handleSave();
               }} >
-              Save {action} </button>
+                Save {action} </button>
             </div>
           </form>
         )}
+
       </div>
     </div>
   );

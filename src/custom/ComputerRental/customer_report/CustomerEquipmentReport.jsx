@@ -4,9 +4,8 @@ import { fetchJson } from "@utils/fetchJson";
 import { ReportExport } from "./ReportExport";
 import { ActionPopup } from "./ActionPopup";
 import { UpgradePopup } from "./UpgradePopup";
-import { ReplaceAll,MessageCircleWarning, Laptop, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown , BadgeInfo , ArrowUpFromLine } from "lucide-react";
+import { ReplaceAll,MessageCircleWarning, Laptop, ArrowDown01, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown , BadgeInfo , ArrowUpFromLine } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
-
 
 // Helper for status color
 const STATUS_STYLES = {
@@ -192,12 +191,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
           <div className="text-xs text-gray-500">Customer ID</div>
           <div className="font-semibold text-base md:text-lg">{customerId}</div>
         </div>
-        <div>
-          <div className="text-xs text-gray-500">Total Assets</div>
-          <div className="font-semibold text-base md:text-lg text-green-600">
-            {summary.total} Items
-          </div>
-        </div>
+        <div></div>
         <div>
           <div className="text-xs text-gray-500">Report Generated</div>
           <div className="font-semibold text-base md:text-lg">
@@ -211,7 +205,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         <KPIBox icon={<Laptop size={22} />} label="Ongoing Assets" value={summary.ongoing} color="green" />
         <KPIBox icon={<RotateCcw size={20} />} label="Returned Assets" value={summary.returned} color="red" />
         <KPIBox icon={<ReplaceAll size={20} />} label="Replaced Assets" value={summary.replaced} color="violet" />
-        <KPIBox icon={<IndianRupee size={20} />} label="Pending Replaced" value={summary.replacement_pending} color="yellow" />
+        <KPIBox icon={<ArrowDown01 size={20} />} label="Pending Replaced" value={summary.replacement_pending} color="yellow" />
         <KPIBox icon={<IndianRupee size={20} />} label="Monthly Billing" value={`₹ ${summary.billing.toLocaleString()}`} color="blue" />
         <KPIBox icon={<CalendarDays size={20} />} label="Avg. Rental Days" value={summary.avgDays} color="orange" />
       </div>
@@ -371,7 +365,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                       ) : row.action === "replace" ? (
                         <div>
                           <div className="text-xs text-blue-500">Replaced on: {row.return_date || "-"}</div>
-                          <div className="text-xs text-blue-500">Replaced with: {row.replaced_product.product_serial_no || "-"}</div>
+                          <div className="text-xs text-blue-500">Replaced with: {row.replaced_product.product_name || "-"} ({row.replaced_product.product_serial_no || "-"})</div>
                           <div className="text-xs text-gray-600">{row.reason || ""}</div>
                         </div>
                       ) : (
