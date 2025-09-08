@@ -27,6 +27,12 @@ function StatusPill({ status }) {
   );
 }
 
+function capitalize(str) {
+  if (!str) return '';
+  str = str.replace('_', ' ')
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 export default function CustomerEquipmentReport({ customer_id, customerName }) {
   // --- State
   const [loading, setLoading] = useState(true);
@@ -315,7 +321,13 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                         {row.invoiceLineNarr || "-"}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {row.product_serial_no || row.serial_no || "-"}
+                        <span>
+                          {row.product_serial_no || row.serial_no || "-"}
+                        </span>
+                        <span className="ml-1">
+                          {`( ${capitalize(row.billing_type)}` || "-"}
+                        </span>
+                        
                       </div>
                     </td>
                     <td className="py-3">
