@@ -325,7 +325,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                           {row.product_serial_no || row.serial_no || "-"}
                         </span>
                         <span className="ml-1">
-                          {`( ${capitalize(row.billing_type)}` || "-"}
+                          {`( ${capitalize(row.billing_type)} )` || "-"}
                         </span>
                         
                       </div>

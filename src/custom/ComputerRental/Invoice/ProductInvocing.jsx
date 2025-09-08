@@ -144,6 +144,7 @@ export default function ProductInvocing() {
     return date1 > date2;
   };
   const isDisabled = (a)=> {
+    // invoiceDetails.billingDate = "2025-11-04";
     console.log('a :', a);
     if (a.row_close === "y" && !canBillReturnedProduct(invoiceDetails.billingDate,a.last_bill_date,a.returnDate, a.billing_type)) {
       return true;
@@ -525,7 +526,7 @@ export default function ProductInvocing() {
                       {a.replaced_revenue && (
                         <>
                           <span className="mx-1 text-green-500">
-                            Replaced item is billed 
+                            Replaced item bill is added in this item bill.
                           </span>
                           <span className="mx-1">
                             | Replaced item revenue : {a.replaced_revenue?.revenue} |
