@@ -81,24 +81,17 @@ export default function PendingBillingReport() {
   const [showOnlyOverdue, setShowOnlyOverdue] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
-  const defFilter = {
-    assetType: "",
-    status: "",
-    dateFrom: "",
-    dateTo: "",
-    customer_id: "",
-    curpage: "0",
-  };
+  
+  const [customer_id, setCustomerID] = useState(null);
+  const [type, setType] = useState(null);
+  const [status,setStatus] = useState(null);
   const defSummary = {
     "ongoing" : 0 ,
     "pending_amount" : 0 ,
     "returned_not_billed" : 0,
     "total_assets" : 0
   };
-  const [filters, setFilters] = useState(defFilter)
-  const [summary, setSummary] = useState(defSummary);
-
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [paging, setPaging] = useState({
     curPage: 0,
     prevPage: 0,
@@ -106,11 +99,17 @@ export default function PendingBillingReport() {
     pageLimit: 50,
     totalRecords: 0,
   });
+  const [summary, setSummary] = useState(defSummary);
   const getData = async function () {
     setLoading(true);
     const res = await fetchJson(`${API_BASE_URL}/pending_bills`, {
       method: 'POST',
-      body: JSON.stringify(filters)
+      body: JSON.stringify({
+        assetType: type,
+        status: status,
+        customer_id: customer_id,
+        curpage: page,
+      })
     });
     const data = await res;
     setLoading(false);
@@ -123,6 +122,7 @@ export default function PendingBillingReport() {
       setSummary(defSummary);
     }
   }
+
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -132,8 +132,7 @@ export default function PendingBillingReport() {
     return () => {
       isMounted = false;
     };
-  }, [filters]);
-
+  }, [status,type,customer_id,page]);
 
   return (
     <div className="min-h-screen bg-[#f6f7f9] py-6 px-2 md:px-8">
@@ -149,7 +148,8 @@ export default function PendingBillingReport() {
           <div className="flex justify-between items-center bg-white rounded-xl border shadow-sm px-5 py-4 min-w-[160px]">
             <div>
               <div className="text-xs md:text-sm text-gray-500 font-medium">Total Assets</div>
-              <div className="text-2xl font-bold text-gray-800">{summary.total_assets || 0}</div>
+              { !loading && (<div className={`text-2xl font-bold text-gray-800`}>{summary.total_assets || 0 }</div>)}
+              { loading && (<div className={`text-2xl font-bold text-gray-800 animate-bounce`}>-</div>)}
             </div>
             <div><FaFileInvoiceDollar className="text-blue-500 text-3xl" /></div>
           </div>
@@ -157,7 +157,8 @@ export default function PendingBillingReport() {
           <div className="flex justify-between items-center bg-white rounded-xl border shadow-sm px-5 py-4 min-w-[160px]">
             <div>
               <div className="text-xs md:text-sm text-gray-500 font-medium">Returned (Not Billed)</div>
-              <div className="text-2xl font-bold text-gray-800">{summary.returned_not_billed || 0}</div>
+              { !loading && (<div className="text-2xl font-bold text-gray-800">{summary.returned_not_billed || 0}</div>) }
+              { loading && (<div className={`text-2xl font-bold text-gray-800 animate-bounce`}>-</div>)}
             </div>
             <div><FaSyncAlt className="text-orange-500 text-3xl" /></div>
           </div>
@@ -165,29 +166,21 @@ export default function PendingBillingReport() {
           <div className="flex justify-between items-center bg-white rounded-xl border shadow-sm px-5 py-4 min-w-[160px]">
             <div>
               <div className="text-xs md:text-sm text-gray-500 font-medium">Ongoing</div>
-              <div className="text-2xl font-bold text-gray-800">{summary.ongoing || 0}</div>
+              { !loading && (<div className="text-2xl font-bold text-gray-800">{summary.ongoing || 0}</div>)}
+              { loading && (<div className={`text-2xl font-bold text-gray-800 animate-bounce`}>-</div>)}
+
             </div>
             <div><FaClock className="text-blue-500 text-3xl" /></div>
           </div>
           <div className="flex justify-between items-center bg-white rounded-xl border shadow-sm px-5 py-4 min-w-[160px]">
             <div>
               <div className="text-xs md:text-sm text-gray-500 font-medium">Pending Amount</div>
-              <div className="text-2xl font-bold text-gray-800">{summary.pending_amount || 0}</div>
+              { !loading && (<div className="text-2xl font-bold text-gray-800">{summary.pending_amount || 0}</div>)}
+              { loading && (<div className={`text-2xl font-bold text-gray-800 animate-bounce`}>-</div>)}
             </div>
             <div><FaDollarSign className="text-yellow-500 text-3xl" /></div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 justify-end mb-4">
-          {/* <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium shadow">
-            <FaDownload /> Export
-          </button> */}
-          <button className="flex items-center gap-2 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 text-sm font-medium shadow" onClick={() => {
-            navigate("/invoice-calculator");
-          }} ><FaPlus /> Create Invoice</button>
-        </div>
-
         {/* Filters */}
         <div className="bg-white border rounded-xl shadow-sm px-4 py-4 mb-5 text-sm">
           <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
@@ -195,11 +188,10 @@ export default function PendingBillingReport() {
               <div className="text-xs mb-1">Customer</div>
               <div className="font-semibold text-base md:text-lg">
                 <SmartSelectInput
-                  id="customer" label="" value={filters.customer_id}
+                  id="customer" label="" value={customer_id}
                   onSelect={(data) => {
-                    if (data) {
-                      setFilters(f => ({ ...f, customer_id: data }))
-                    }
+                    setCustomerID(data);
+                    // setFilters(f => ({ ...f, customer_id: data  }))
                   }}
                   onObjectSelect={() => { }}
                   config={{
@@ -218,8 +210,8 @@ export default function PendingBillingReport() {
               <div className="text-xs mb-1">Status</div>
               <select
                 className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-50"
-                value={filters.status}
-                onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
+                value={status}
+                onChange={e => setStatus(e.target.value)}
               >
                 <option value="">All Status</option>
                 <option value="Ongoing">Ongoing</option>
@@ -229,9 +221,9 @@ export default function PendingBillingReport() {
             <div className="w-full md:w-auto">
               <label className="text-xs mb-1">Type</label>
               <SmartSelectInput
-                id="product_type" label="" value={filters?.type}
+                id="product_type" label="" value={type}
                 onSelect={(data) => {
-                  setFilters(f => ({ ...f, type: data }))
+                  setType(data);
                 }}
                 onObjectSelect={()=>{}}
                 config={{type: 'category',valueKey:'category_id',source: 'product_types',
@@ -242,57 +234,25 @@ export default function PendingBillingReport() {
                 allowAddNew: false,preload: true,cache: true,showRecent: true}}
               />
             </div>
-            {/* <select className="border rounded px-2 py-1 text-sm text-gray-700 bg-white w-full md:w-auto">
-              <option>All Types</option>
-            </select> */}
-
-            {/* <select className="border rounded px-2 py-1 text-sm text-gray-700 bg-white w-full md:w-auto">
-              <option>All Branches</option>
-            </select> */}
-            {/* <input
-              type="text"
-              placeholder="Search by serial, customer..."
-              className="border rounded px-2 py-1 text-sm w-full md:w-56"
-            /> */}
-            {/* <label className="flex items-center text-sm gap-2 ml-1">
-              <input
-                type="checkbox"
-                checked={showOnlyOverdue}
-                onChange={() => setShowOnlyOverdue(!showOnlyOverdue)}
-              />
-              Show only overdue
-            </label> */}
-            {/* <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">Apply Filters</button> */}
             <button className="border px-3 py-1 mt-5 rounded text-sm text-gray-700 hover:bg-gray-50" onClick={()=>{
-              setFilters({
-                assetType: "",
-                status: "",
-                dateFrom: "",
-                dateTo: "",
-                customer_id: "",
-              });
+              setCustomerID(null);
+              setStatus(null);
+              setType(null);
+              setPage(0);
             }}>Reset</button>
+            {/* Action Buttons */}
+            <div className="flex gap-2 justify-end w-120">
+              <button className="flex items-center gap-2 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 text-sm font-medium shadow" onClick={() => {
+                navigate("/invoice-calculator");
+              }} ><FaPlus /> Create Invoice</button>
+            </div>
           </div>
         </div>
 
         {/* Table Section */}
         <div className="bg-white border border-b rounded-xl shadow-sm p-0">
-          {/* Bulk Actions */}
-          <div className="flex flex-wrap gap-2 py-1 border-b border-gray-100 items-center">
-            {/* <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" /> Select All
-              <span className="font-medium text-gray-600">247 items found</span>
-            </label> */}
-            {/* <div className="flex-1" /> */}
-            {/* <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
-              Bulk Invoice
-            </button> */}
-            {/* <button className="bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-800 text-sm">
-              Send Reminder
-            </button> */}
-          </div>
           {/* Scrollable Table */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto h-[310px]">
             <table className="min-w-[900px] w-full">
               <thead className="bg-gray-50 text-gray-700 text-xs font-bold sticky top-0 z-10">
                 <tr>
@@ -303,7 +263,6 @@ export default function PendingBillingReport() {
                   <th className="px-3 py-2 w-5 text-left">Status</th>
                   <th className="px-3 py-2 text-left">Rental Period</th>
                   <th className="px-3 py-2 text-right">Amount</th>
-                  {/* <th className="px-3 py-2 text-center">Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -317,7 +276,7 @@ export default function PendingBillingReport() {
                       No data found
                     </td>
                   </tr>
-                  ) : !loading &&  rows.map((row) => (
+                  ) : !loading && rows.map((row) => (
                   <PendingBillingRow row={row} key={row.id} />
                 )) 
                 }
@@ -333,7 +292,7 @@ export default function PendingBillingReport() {
             <div className="flex gap-2">
               <button
                 disabled={paging.curPage === 0}
-                onClick={() => setFilters(f => ({ ...f, curpage: paging.curPage - 1 }))}
+                onClick={() => setPage(paging.curPage - 1)}
                 className={`px-3 py-1 rounded border text-sm ${paging.curPage === 0
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "bg-white hover:bg-gray-100 text-gray-700"
@@ -343,7 +302,7 @@ export default function PendingBillingReport() {
               </button>
               <button
                 disabled={(paging.curPage + 1) * paging.pageLimit >= paging.totalRecords}
-                onClick={() => setFilters(f => ({ ...f, curpage: paging.curPage + 1}))}
+                onClick={() => setPage(paging.curPage + 1)}
                 className={`px-3 py-1 rounded border text-sm ${(paging.curPage + 1) * paging.pageLimit >= paging.totalRecords
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white hover:bg-gray-100 text-gray-700"
