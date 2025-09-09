@@ -145,7 +145,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   }, [customerId, customerName, filters, page]);
 
   const filtered = equipments.filter((row) => {
-    if (filters.status && (filters.status === "Ongoing" || filters.status === "Returned")) {
+    if (filters.status && (filters.status === "Ongoing" || filters.status === "Returned" || filters.status === "Replaced")) {
       if (row.status !== filters.status) return false;
     }
     return true;
@@ -244,6 +244,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
             <option value="">All Status</option>
             <option value="Ongoing">Ongoing</option>
             <option value="Returned">Returned</option>
+            <option value="Replaced">Replaced</option>
           </select>
         </div>
         <div className="w-full md:w-auto">

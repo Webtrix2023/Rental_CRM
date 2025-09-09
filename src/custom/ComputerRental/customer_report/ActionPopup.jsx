@@ -14,13 +14,24 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
   const [payload, setPayload] = useState(null);
   const [product_details, setProductDetails] = useState({});
 
-  useEffect(() => {
+  async function parseProductDetails(itemRow) {
+    const details = await new Promise((resolve, reject) => {
+      try {
+        const parsed = itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {};
+        resolve(parsed);
+      } catch (error) {
+        reject(error); // handle invalid JSON
+      }
+    });
+
+    setProductDetails(details);
+  }
+
+  useEffect( () => {
     if (!isOpen) return;
-
     setProductDetails(itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {})
-    console.log('product_details 1 : ', product_details);
-
-
+    const product = itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {};
+    console.log('product 1 : ', product);
     switch (action) {
       case 'return':
         setPayload(defaultReturnModel);
@@ -34,10 +45,10 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
       default:
         setPayload(null);
     }
-    console.log('product_details.hdd_capacity:',product_details.hdd_capacity);
-    console.log('product_details.memory:',product_details.memory);
-    console.log('product_details.operating_system:',product_details.operating_system);
-    console.log('product_details.screensize:',product_details.screensize);
+    console.log('product_details.hdd_capacity:',product.hdd_capacity);
+    console.log('product_details.memory:',product.memory);
+    console.log('product_details.operating_system:',product.operating_system);
+    console.log('product_details.screensize:',product.screensize);
     
     setPayload((prev) => ({
       ...prev,
@@ -45,10 +56,10 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
       ['itemID']: itemID,
       ['invoice_id']: invoice_id,
       ['product_id']: product_id,
-      ['old_hdd_capacity']: product_details.hdd_capacity || null,
-      ['old_memory']: product_details.memory || null,
-      ['old_operating_system']: product_details.operating_system || null,
-      ['old_screensize']: product_details.screensize || null,
+      ['old_hdd_capacity']: product.hdd_capacity || null,
+      ['old_memory']: product.memory || null,
+      ['old_operating_system']: product.operating_system || null,
+      ['old_screensize']: product.screensize || null,
     }));
     console.log('payload 1 : ', payload);
 
@@ -95,6 +106,10 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
     if (action === "upgrade") {
       if (!payload?.upgrade_date || !payload?.charges_apply_from || !payload?.upgrade_charges) {
         toast.error("Please fill all required upgrade fields.");
+        return;
+      }
+      if (payload?.upgrade_charges <= 0) {
+        toast.error("Please upgrade charges should be positive.");
         return;
       }
       if (!isConfigChanged(payload)) {
@@ -275,7 +290,7 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700"> Charges <span className="text-red-500">*</span> </label>
-                    <input type="text" placeholder="Enter upgrade charges" className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required onChange={(e) => { handleInputChange('upgrade_charges', e.target.value); }} />
+                    <input type="number" min="0" placeholder="Enter upgrade charges" className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required onChange={(e) => { handleInputChange('upgrade_charges', e.target.value); }} />
                   </div>
                   <div className="w-full md:w-1/2">
                     <label className="text-sm font-medium text-gray-700"> Charges Apply From <span className="text-red-500">*</span> </label>

@@ -4,7 +4,12 @@ import { ArrowUpFromLine } from "lucide-react";
 export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
 
   const [loading, setLoading] = useState(false);
-
+  const upgrade_types = {
+    "screensize" : "Screen Size",
+    "operating system" : "Operating System",
+    "hdd capacity" : "HDD Capasity",
+    "memory" : "Memory",
+  };
   if (!isOpen) return null;
 
   function SkeletonRow() {
@@ -65,7 +70,7 @@ export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
               <div class="flex items-center border p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
                 <div class="mr-4 flex-1">
                   <div class="font-medium text-gray-600 mb-1">
-                    <span >{capitalize((line.upgrade_type || "")) || "[upgrade type]"}</span>
+                    <span >{upgrade_types[line.upgrade_type] || "[upgrade type]"}</span>
                     <span className="ml-1">
                       upgraded 
                       {line.old_val && (

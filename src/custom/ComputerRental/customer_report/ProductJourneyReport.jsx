@@ -57,6 +57,12 @@ function ProductJourneyReport({ product_id }) {
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState(null);
   const [timeline, setTimeline] = useState([]);
+  const upgrade_types = {
+    "screensize" : "Screen Size",
+    "operating system" : "Operating System",
+    "hdd capacity" : "HDD Capasity",
+    "memory" : "Memory",
+  };
   const formRef = useRef(null);
   // const [productId, setProductId] = useState(product_id);
   const [productId, setProductId] = useState(13);
@@ -192,7 +198,7 @@ function ProductJourneyReport({ product_id }) {
                 ),
                 desc: (
                   <>
-                    Product replaced with {h.replaced_product && <span className="text-red-500"> {h.replaced_product?.product_name || '-'} - {h.replaced_product?.product_serial_no || '-'}</span>} by {h.customer_name || "Customer"}
+                    Product replaced with {h.replaced_product && <span className="text-red-500"> {h.replaced_product?.product_name || ''} ({h.replaced_product?.product_serial_no || '-'})</span>} by {h.customer_name || "Customer"}
                   </>
                 ),
                 date: formatDate(h.returned_date || h.created_date),
@@ -209,7 +215,7 @@ function ProductJourneyReport({ product_id }) {
             } else if (h.old_configuration || h.new_configuration) {
               steps.push({
                 type: "config",
-                title: `Configuration Change: ${capitalize(h.configuration)}`,
+                title: `Configuration Change: ${ upgrade_types[h.configuration] }`,
                 icon: (
                   <div className="text-yellow-500 p-1 rounded-full flex items-center justify-center">
                     <ArrowUp size={20} strokeWidth={3} />
