@@ -287,10 +287,10 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow px-3 md:px-8 py-4 mb-8">
         <div className="font-semibold text-lg mb-3">Equipment Details</div>
         {/* Desktop Table */}
-        <div className="hidden md:block w-full overflow-x-auto">
+        <div className="hidden md:block w-full max-h-[400px] overflow-x-auto overflow-y-auto">
           <table className="min-w-full">
-            <thead>
-              <tr className="text-xs text-gray-500 font-semibold border-b">
+            <thead className="sticky top-0 bg-white z-50" >
+              <tr className="text-xs text-gray-500 font-semibold border-b border-b-gray-300 bg-white">
                 <th className="py-2 text-left">Asset Info</th>
                 <th className="py-2 text-left">Delivery Challan No.</th>
                 <th className="py-2 text-left">Duration</th>
@@ -315,7 +315,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
               ) : (
                 paged.map((row, idx) => (
                   <>
-                  <tr key={idx} className="text-sm">
+                  <tr key={idx} className="text-sm ">
                     <td className="py-3">
                       <div className="font-medium text-gray-700">
                         {row.invoiceLineNarr || "-"}
@@ -396,7 +396,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                       )}
                     </td>
                   </tr>
-                  <tr key={idx+1} className="border-b border-b-gray-400  text-sm">
+                  <tr key={idx+1} className="text-sm border-b border-b-gray-300">
                     {row.note && 
                       <>
                         <td colSpan={7}>
@@ -417,53 +417,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
             </tbody>
           </table>
         </div>
-        {/* Mobile Cards */}
-        <div className="md:hidden flex flex-col gap-3">
-          {loading ? (
-            <div className="text-center text-gray-400 py-6">Loading...</div>
-          ) : paged.length === 0 ? (
-            <div className="text-center text-gray-400 py-6">No data found</div>
-          ) : (
-            paged.map((row, idx) => (
-              <div
-                key={idx}
-                className="rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1"
-              >
-                <div className="font-medium text-gray-700">{row.invoiceLineNarr || "-"}</div>
-                <div className="text-xs text-gray-400">
-                  Serial: {row.product_serial_no || row.serial_no || "-"}
-                </div>
-                <div className="flex flex-wrap gap-2 text-sm mt-1">
-                  <span>
-                    <span className="font-medium">Delivery:</span> {row.invoiceNumber || "-"}
-                  </span>
-                  <span>
-                    <span className="font-medium">Date:</span> {row.date || "-"}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-2 text-sm">
-                  <span>
-                    <span className="font-medium">Duration:</span>{" "}
-                    {row.durationDays ? `${row.durationDays} Days` : "-"}
-                  </span>
-                  <span>
-                    <span className="font-medium">Billing:</span>{" "}
-                    ₹{row.invoiceLineRate ? `${row.invoiceLineRate}/month` : "-"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <StatusPill status={row.status} />
-                  {row.status === "Returned" && (
-                    <span className="text-xs text-red-500 ml-2">
-                      {row.return_date || "-"}
-                      {row.reason ? ` (${row.reason})` : ""}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+
         {/* Pagination */}
         <div className="flex flex-col md:flex-row items-center justify-between mt-4 text-xs text-gray-500 gap-2">
           <span>

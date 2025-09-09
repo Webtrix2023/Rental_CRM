@@ -52,7 +52,7 @@ export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
             <ArrowUpFromLine size={18} />
           </div>
           <div>
-            <h2 className="text-lg font-semibold">Upgrades </h2>
+            <h2 className="text-lg font-semibold">Upgrades History</h2>
           </div>
         </div>
 
