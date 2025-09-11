@@ -36,7 +36,7 @@ export default function InventoryOverview() {
 
   return (
     <>
-      <div className="bg-white border rounded-xl shadow p-4 w-full">
+      <div className="bg-white border border-gray-200 rounded-xl shadow p-4 w-full">
         {loading &&
           <div className="flex justify-center items-center min-h-[200px]">
             <h1 className="text-center animate-pulse text-gray-500 text-lg">Loading...</h1>

@@ -8,7 +8,7 @@ import {
 import { Pie } from "react-chartjs-2";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function InventoryPieChart({ available, onRent, underRepair, reserved }) {
+export default function InventoryPieChart({ available, onRent, underRepair, reserved}) {
   const data = {
     labels: ["Available", "On Rent", "Under Repair", "Reserved"],
     datasets: [
@@ -41,7 +41,7 @@ export default function InventoryPieChart({ available, onRent, underRepair, rese
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-32 h-32">
+      <div className={`w-40 h-40`}>
         <Pie data={data} options={options} />
       </div>
     </div>

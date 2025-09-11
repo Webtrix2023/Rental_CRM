@@ -43,9 +43,8 @@ export default function RevenueFinancials({
   }, []);
 
   return (
-    <div className="bg-white rounded-xl border shadow p-6 w-full max-w-2xl flex flex-col gap-4">
-      <div className="flex flex-wrap gap-4">
-        {/* Revenue Card */}
+    <div className="bg-white rounded-xl border border-gray-200 shadow p-6 w-full max-w-2xl flex flex-col gap-4">
+      {/* <div className="flex flex-wrap gap-4">
         <div className="flex-1 min-w-[180px] bg-blue-50 rounded-lg flex items-center gap-4 p-4">
           <div className="bg-blue-500 text-white rounded-full p-3">
             <IndianRupee size={28} />
@@ -58,7 +57,6 @@ export default function RevenueFinancials({
             </div>
           </div>
         </div>
-        {/* Outstanding Payments Card */}
         <div className="flex-1 min-w-[180px] bg-red-50 rounded-lg flex items-center gap-4 p-4">
           <div className="bg-red-500 text-white rounded-full p-3">
             <AlertCircle size={28} />
@@ -69,7 +67,7 @@ export default function RevenueFinancials({
             <div className="text-xs mt-1 text-red-600 font-medium">Due & Overdue</div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       
       {/* Product Type Section */}
