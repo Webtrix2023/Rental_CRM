@@ -64,8 +64,8 @@ function ProductJourneyReport({ product_id }) {
     "memory" : "Memory",
   };
   const formRef = useRef(null);
-  // const [productId, setProductId] = useState(product_id);
-  const [productId, setProductId] = useState(13);
+  const [productId, setProductId] = useState(product_id);
+  // const [productId, setProductId] = useState(13);
   const handleExport = (e) => {
     e.preventDefault();
     const type = e.target.getAttribute("data-type");

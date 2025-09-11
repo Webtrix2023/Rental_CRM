@@ -109,7 +109,7 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
         return;
       }
       if (payload?.upgrade_charges <= 0) {
-        toast.error("Please upgrade charges should be positive.");
+        toast.error("Upgrade charges should be positive.");
         return;
       }
       if (!isConfigChanged(payload)) {
