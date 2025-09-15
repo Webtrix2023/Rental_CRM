@@ -127,6 +127,16 @@ export default function ProductInvocing() {
     return false;
   };
 
+  const formatAmount = (value) => {
+    let numericValue = parseFloat(value);
+
+    if (isNaN(numericValue)) numericValue = 0;
+
+    return numericValue.toLocaleString('en-US', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    });
+  };
 
   const compareDate = (invoiceDate, lastBillDate, billing_type) => {
     if (!lastBillDate) return true; // no last bill → billing allowed
@@ -192,6 +202,7 @@ export default function ProductInvocing() {
   };
 
   useEffect(() => {
+    handleInputChange("customGst", 0);
     getDeliveries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoiceDetails.customerId, invoiceDetails.billingDate, invoiceDetails.invoiceDate]);
@@ -251,6 +262,9 @@ export default function ProductInvocing() {
 
   // GST Calculation based on company state and customer state
   let cgst = 0, sgst = 0, igst = 0;
+  console.log('invoiceDetails.company_state_id :',invoiceDetails.company_state_id);
+  console.log('customer.gst_state :',customer.gst_state);
+  
 
   if (invoiceDetails.is_gst_billing === "yes") {
     if (customer?.gst_state && invoiceDetails.company_state_id && customer.gst_state.toString() !== invoiceDetails.company_state_id.toString()){
@@ -283,11 +297,8 @@ export default function ProductInvocing() {
   //     subtotal * (Number(invoiceDetails.interGstPercent || 0) / 100)
   //   );
   // }
-
   const gst = cgst + sgst + igst ;
-
-  const totalAmount = subtotal + gst;
-
+  const totalAmount = formatAmount(subtotal + gst);
   const handleGenerateInvoice = async () => {
     swalObj
       .fire({
@@ -332,7 +343,22 @@ export default function ProductInvocing() {
         }
       });
   };
+  const validateNumber = (value) => {
+    let sanitizedValue = value.replace(/^0+/, '') || '0';
 
+    if (!/^\d+$/.test(sanitizedValue)) {
+      toast.error("GST must be an integer between 0 and 100.");
+      sanitizedValue = 0;
+    }
+
+    if (sanitizedValue < 0 || sanitizedValue > 100) {
+      toast.error("GST must be between 0 and 100.");
+      sanitizedValue = 0;
+    }
+
+    // Remove leading zeros by converting it to a number and then back to string
+    handleInputChange("customGst", sanitizedValue);
+  };
   const capitalizeFirst = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
@@ -577,7 +603,10 @@ export default function ProductInvocing() {
                 type="checkbox"
                 id="is_gst_billing"
                 checked={invoiceDetails.is_gst_billing === "yes" ? true : false}
-                onChange={(e) => handleInputChange("is_gst_billing", e.target.checked ? 'yes' : 'no')}
+                onChange={(e) => {
+                  handleInputChange("customGst", 0);
+                  handleInputChange("is_gst_billing", e.target.checked ? 'yes' : 'no');
+                }}
                 className="mr-2"
               />
               <label htmlFor="is_gst_billing" className="text-sm text-gray-700">
@@ -588,11 +617,11 @@ export default function ProductInvocing() {
                   {/* <label className="text-sm block text-gray-700">Enter GST</label> */}
                   <input
                     id="customGst"
-                    type="text"
+                    type="number"
                     value={invoiceDetails.customGst}
                     placeholder="GST"
-                    onChange={(e) => handleInputChange("customGst", e.target.value)}
-                    className="w-20 border border-gray-300 rounded px-2 py-1 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => validateNumber(e.target.value) }
+                    className="w-20 border border-gray-300 rounded px-2 py-1 pr-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               )}
