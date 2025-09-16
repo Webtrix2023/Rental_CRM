@@ -218,7 +218,7 @@ export default function ProductInvocing() {
     setLoading(true);
     const company_id = Cookies.get("company_id");
     fetchJson(
-      `${API_BASE_URL}/companyMaster/${company_id || 0}`,
+      `${API_BASE_URL}/companyMaster/${company_id || 1}`,
       {
         method: "GET",
         body: JSON.stringify(),
