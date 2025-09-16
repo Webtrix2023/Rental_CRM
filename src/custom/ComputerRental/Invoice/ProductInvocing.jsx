@@ -49,7 +49,7 @@ export default function ProductInvocing() {
     selectedAssets: [],
   });
 
-  const [customer, setCustomer] = useState(139);
+  const [customer, setCustomer] = useState(null);
   const [assets, setAssets] = useState([]);
   const [selectedAssets, setSelectedAssets] = useState([]);
   const [loading, setLoading] = useState(false);
