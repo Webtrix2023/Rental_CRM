@@ -230,7 +230,7 @@ export default function ProductInvocing() {
         "company_state_id": data.state ?? '0'
       }));
     }).finally(() => setLoading(false));
-  }, []);
+  }, [customer]);
 
   const isSelected = (itemID) =>
     selectedAssets.some((item) => item.itemID === itemID);
