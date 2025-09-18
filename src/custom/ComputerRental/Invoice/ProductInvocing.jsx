@@ -126,16 +126,12 @@ export default function ProductInvocing() {
     // 5. Otherwise, don't allow (already billed before closure)
     return false;
   };
-
-  const formatAmount = (value) => {
-    let numericValue = parseFloat(value);
-
-    if (isNaN(numericValue)) numericValue = 0;
-
-    return numericValue.toLocaleString('en-US', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
-    });
+  const numberFormat = (num, tonm) => {
+    if (!isNaN(num) && num !== null && num !== "" && num !== false) {
+      return parseFloat(parseFloat(num).toFixed(tonm));
+    } else {
+      return parseFloat((0).toFixed(tonm));
+    }
   };
 
   const compareDate = (invoiceDate, lastBillDate, billing_type) => {
@@ -262,33 +258,27 @@ export default function ProductInvocing() {
 
   // GST Calculation based on company state and customer state
   let cgst = 0, sgst = 0, igst = 0;
-  console.log('invoiceDetails.company_state_id :',invoiceDetails.company_state_id);
-  console.log('customer.gst_state :',customer.gst_state);
-  
+  // console.log('invoiceDetails.company_state_id :',invoiceDetails.company_state_id);
+  // console.log('customer.gst_state :',customer.gst_state);
+
 
   if (invoiceDetails.is_gst_billing === "yes") {
-    if (customer?.gst_state && invoiceDetails.company_state_id && customer.gst_state.toString() !== invoiceDetails.company_state_id.toString()){
-      invoiceDetails.stateGst = 0; 
-      invoiceDetails.centralGst = 0; 
-      invoiceDetails.interGst = invoiceDetails.customGst; 
-    }else{
-      invoiceDetails.interGst = 0; 
-      invoiceDetails.stateGst = (invoiceDetails.customGst) ? (invoiceDetails.customGst / 2) : 0; 
-      invoiceDetails.centralGst = (invoiceDetails.customGst) ? (invoiceDetails.customGst / 2) : 0; 
-    } 
+    if (customer?.gst_state && invoiceDetails.company_state_id && customer.gst_state.toString() !== invoiceDetails.company_state_id.toString()) {
+      invoiceDetails.stateGst = 0;
+      invoiceDetails.centralGst = 0;
+      invoiceDetails.interGst = invoiceDetails.customGst;
+    } else {
+      invoiceDetails.interGst = 0;
+      invoiceDetails.stateGst = (invoiceDetails.customGst) ? (invoiceDetails.customGst / 2) : 0;
+      invoiceDetails.centralGst = (invoiceDetails.customGst) ? (invoiceDetails.customGst / 2) : 0;
+    }
     if (customer?.gst_state && invoiceDetails.company_state_id && customer.gst_state.toString() !== invoiceDetails.company_state_id.toString()) {
       // Interstate → IGST
-      igst = Math.round(
-        subtotal * (Number(invoiceDetails.interGst || 0) / 100)
-      );
+      igst = numberFormat(subtotal * (Number(invoiceDetails.interGst || 0) / 100) , 2);
     } else {
       // Intrastate → CGST + SGST
-      cgst = Math.round(
-        subtotal * (Number(invoiceDetails.centralGst || 0) / 100)
-      );
-      sgst = Math.round(
-        subtotal * (Number(invoiceDetails.stateGst || 0) / 100)
-      );
+      cgst = numberFormat(subtotal * (Number(invoiceDetails.centralGst || 0) / 100),2);
+      sgst = numberFormat(subtotal * (Number(invoiceDetails.stateGst || 0) / 100),2);
     }
   }
   // if (invoiceDetails.is_gst_billing === "yes") {
@@ -297,8 +287,8 @@ export default function ProductInvocing() {
   //     subtotal * (Number(invoiceDetails.interGstPercent || 0) / 100)
   //   );
   // }
-  const gst = cgst + sgst + igst ;
-  const totalAmount = formatAmount(subtotal + gst);
+  const gst = cgst + sgst + igst;
+  const totalAmount = numberFormat((subtotal + gst), 2);
   const handleGenerateInvoice = async () => {
     swalObj
       .fire({
@@ -620,7 +610,7 @@ export default function ProductInvocing() {
                     type="number"
                     value={invoiceDetails.customGst}
                     placeholder="GST"
-                    onChange={(e) => validateNumber(e.target.value) }
+                    onChange={(e) => validateNumber(e.target.value)}
                     className="w-20 border border-gray-300 rounded px-2 py-1 pr-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -628,25 +618,25 @@ export default function ProductInvocing() {
             </div>
             {invoiceDetails.is_gst_billing === "yes" ? (
               <>
-              {cgst > 0 && (
-                <div className="text-xs mb-1 flex justify-between">
-                  CGST ({invoiceDetails.centralGst}%):
-                  <span className="text-gray-700">₹{cgst}</span>
-                </div>
-              )}
-              {sgst > 0 && (
-                <div className="text-xs mb-1 flex justify-between">
-                  SGST ({invoiceDetails.stateGst}%):
-                  <span className="text-gray-700">₹{sgst}</span>
-                </div>
-              )}
-              {igst > 0 && (
-                <div className="text-xs mb-1 flex justify-between">
-                  IGST ({invoiceDetails.interGst}%):
-                  <span className="text-gray-700">₹{igst}</span>
-                </div>
-              )}
-            </>
+                {cgst > 0 && (
+                  <div className="text-xs mb-1 flex justify-between">
+                    CGST ({invoiceDetails.centralGst}%):
+                    <span className="text-gray-700">₹{cgst}</span>
+                  </div>
+                )}
+                {sgst > 0 && (
+                  <div className="text-xs mb-1 flex justify-between">
+                    SGST ({invoiceDetails.stateGst}%):
+                    <span className="text-gray-700">₹{sgst}</span>
+                  </div>
+                )}
+                {igst > 0 && (
+                  <div className="text-xs mb-1 flex justify-between">
+                    IGST ({invoiceDetails.interGst}%):
+                    <span className="text-gray-700">₹{igst}</span>
+                  </div>
+                )}
+              </>
             ) : ''}
             {/* <div className="text-xs mb-1 flex justify-between">
               GST ({invoiceDetails.interGstPercent}%):

@@ -60,12 +60,18 @@ function ProductJourneyReport({ product_id }) {
   const upgrade_types = {
     "screensize" : "Screen Size",
     "operating system" : "Operating System",
-    "hdd capacity" : "HDD Capasity",
+    "hdd capacity" : "HDD Capacity",
     "memory" : "Memory",
+    "generation" : "Generation",
+    
+    "Screensize" : "Screen Size",
+    "Operating System" : "Operating System",
+    "HDD Capacity" : "HDD Capacity",
+    "Memory" : "Memory",
+    "Generation" : "Generation",
   };
   const formRef = useRef(null);
   const [productId, setProductId] = useState(product_id);
-  // const [productId, setProductId] = useState(13);
   const handleExport = (e) => {
     e.preventDefault();
     const type = e.target.getAttribute("data-type");
@@ -215,7 +221,7 @@ function ProductJourneyReport({ product_id }) {
             } else if (h.old_configuration || h.new_configuration) {
               steps.push({
                 type: "config",
-                title: `Configuration Change: ${ upgrade_types[h.configuration] }`,
+                title: `Configuration Change: ${ upgrade_types[h.configuration] || 'N/A' }`,
                 icon: (
                   <div className="text-yellow-500 p-1 rounded-full flex items-center justify-center">
                     <ArrowUp size={20} strokeWidth={3} />
