@@ -36,7 +36,8 @@ export default function ProductInvocing() {
   // UI state
   const [invoiceDetails, setInvoiceDetails] = useState({
     customerId: null,
-    invoiceDate: new Date().toISOString().substring(0, 10),
+    invoiceDate : null,
+    // invoiceDate: new Date().toISOString().substring(0, 10),
     billingDate: new Date().toISOString().substring(0, 10),
     billingPeriod: "Monthly",
     is_gst_billing: "no",
@@ -60,7 +61,10 @@ export default function ProductInvocing() {
       [field]: value,
     }));
   };
-
+  // const today = new Date();
+  // const [lastInvoiceDate, setlastInvoiceDate] = useState(today);
+  const [lastInvoiceDate, setlastInvoiceDate] = useState(null);
+  // let lastInvoiceDate = null;
   // Demo summary stats
   const [summary, setSummary] = useState({
     activeAssets: 0,
@@ -168,8 +172,7 @@ export default function ProductInvocing() {
       return;
     }
     if (
-      !isDateValid(invoiceDetails.billingDate) ||
-      !isDateValid(invoiceDetails.invoiceDate)
+      !isDateValid(invoiceDetails.billingDate)
     ) {
       toast.error("Invoice or billing date cannot be in the future.");
       return;
@@ -209,6 +212,24 @@ export default function ProductInvocing() {
       selectedItems: selectedAssets.length,
     }));
   }, [selectedAssets]);
+
+  useEffect(() => {
+    getLastInvoiceDate();
+  }, []);
+
+  const getLastInvoiceDate = () => {
+    fetchJson(
+      `${API_BASE_URL}/getLastInvoiceDate`,
+      {
+        method: "GET",
+        body: JSON.stringify(),
+      }
+    ).then((res) => {
+      const data = res.data ?? {};
+      // lastInvoiceDate = data.last_invoice_date;      
+      setlastInvoiceDate(data.last_invoice_date);
+    }).finally(() => setLoading(false));
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -323,6 +344,7 @@ export default function ProductInvocing() {
               "success"
             );
             getDeliveries();
+            getLastInvoiceDate();
           } else {
             swalObj.fire(
               "Failed!",
@@ -395,10 +417,12 @@ export default function ProductInvocing() {
             Invoice Date
           </label>
           <DatePicker
-            selected={invoiceDetails.invoiceDate}
-            minDate={new Date()}   // prevent past dates
-            maxDate={new Date()}   // prevent future dates
-            onChange={(date) => handleInputChange('invoice_date', date?.toISOString())}
+            selected={invoiceDetails.invoiceDate || new Date(lastInvoiceDate)}
+            minDate={lastInvoiceDate && new Date(lastInvoiceDate)}   // prevent past dates
+            // maxDate={new Date()}   // prevent future dates
+            onChange={(date) => {
+              handleInputChange('invoiceDate', date?.toISOString())}
+            }
             className="ws-date form-input w-full text-gray-600 bg-gray-100 rounded focus:outline-none px-3 py-2 pr-10 px-2 py-1 text-sm"
             placeholderText="Select a date"
             dateFormat="yyyy-MM-dd"
@@ -409,7 +433,7 @@ export default function ProductInvocing() {
             Billing Date
           </label>
           <DatePicker
-            minDate={new Date()}   // prevent past dates
+            // minDate={new Date()}   // prevent past dates
             maxDate={new Date()}   // prevent future dates
             selected={invoiceDetails.billingDate}
             onChange={(date) => handleInputChange('billingDate', date?.toISOString())}
