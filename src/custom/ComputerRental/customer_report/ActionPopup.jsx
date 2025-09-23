@@ -27,7 +27,7 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
     setProductDetails(details);
   }
 
-  useEffect( () => {
+  useEffect(() => {
     if (!isOpen) return;
     setProductDetails(itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {})
     const product = itemRow.productDetailsObject ? JSON.parse(itemRow.productDetailsObject) : {};
@@ -45,11 +45,11 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
       default:
         setPayload(null);
     }
-    console.log('product_details.hdd_capacity:',product.hdd_capacity);
-    console.log('product_details.memory:',product.memory);
-    console.log('product_details.operating_system:',product.operating_system);
-    console.log('product_details.screensize:',product.screensize);
-    
+    console.log('product_details.hdd_capacity:', product.hdd_capacity);
+    console.log('product_details.memory:', product.memory);
+    console.log('product_details.operating_system:', product.operating_system);
+    console.log('product_details.screensize:', product.screensize);
+
     setPayload((prev) => ({
       ...prev,
       ['customer_id']: customer_id,
@@ -314,16 +314,14 @@ export const ActionPopup = ({ not_replacement, itemRow, itemID, customer_id, inv
                 <label className="text-sm font-medium text-gray-700">Select Replacement<span className="text-red-500">*</span></label>
                 <select className="ws-input form-input w-full text-gray-600 text-md bg-gray-100 rounded focus:outline-none text-sm px-3 py-2 pr-10 rounded" name="Charges apply from" onChange={(e) => { handleInputChange('replaced_row_id', e.target.value); }}>
                   <option value=''>Select Replacement</option>
-                  {console.log('item : ', not_replacement)}
                   {not_replacement && not_replacement.map((item, index) => {
-                    const product = JSON.parse(item.productObject);
-                    return (
-                      <option key={index} value={item.itemID}>{`${product.product_name || ''} (${product.product_serial_no})`}</option>
+                    const product = item.productObject ? JSON.parse(item.productObject) : null;
+                    return (product &&
+                      <option key={index} value={item.itemID}>{`${product.product_name || ''} (${product.product_serial_no || '-'})`}</option>
                     )
                   })}
                 </select>
               </div>}
-
             <div>
               <label className="text-sm font-medium text-gray-700">Additional Notes</label>
               <textarea placeholder={`Add any additional notes about the ${action}...`} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows={2} onChange={(e) => { handleInputChange('remark', e.target.value); }}></textarea>
