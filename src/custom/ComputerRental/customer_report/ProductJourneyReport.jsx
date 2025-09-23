@@ -372,6 +372,11 @@ function ProductJourneyReport({ product_id }) {
                         On Rent
                       </span>
                     )}
+                    {product.current_status === 'sold' && (
+                      <span className="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-100 font-semibold text-xs">
+                        Sold
+                      </span>
+                    )}
                     {(!product.current_status || product.current_status === 'in_inventory') && (
                       <span className="inline-block px-3 py-1 rounded-full bg-red-100 text-red-700 font-semibold text-xs">
                         In Inventory
