@@ -272,8 +272,8 @@ export default function ProductInvocing() {
   const subtotal = selectedAssets.reduce(
     (sum, a) =>
       compareDate(invoiceDetails.billingDate, a.last_bill_date, a.billing_type)
-        ? sum + Number(a.revenue || 0)
-        : sum,
+        ? numberFormat(sum + Number(a.revenue || 0), 2)
+        : numberFormat(sum, 2),
     0
   );
 
@@ -548,13 +548,13 @@ export default function ProductInvocing() {
                         </>
                       )}
                       <span className="">
-                        Rate: ₹{a.invoiceLineRate}/month
+                        Rate: ₹{numberFormat(a.invoiceLineRate, 2)}/month
                       </span>
                     </div>
                     <div className="text-green-600 font-bold">
 
                       <span>
-                        ₹{a.revenue}
+                        ₹{numberFormat(a.revenue, 2)}
                       </span>
                       <span className="ml-1 text-xs text-gray-500">
                         {a.total_rent_days || 0}{" "}
@@ -576,7 +576,7 @@ export default function ProductInvocing() {
                             Replaced item bill is added in this item bill.
                           </span>
                           <span className="mx-1">
-                            | Replaced item revenue : {a.replaced_revenue?.revenue} |
+                            | Replaced item revenue : {numberFormat(a.replaced_revenue?.revenue, 2)} |
                           </span>
                           {a.replaced_revenue?.billing_type && (
                             <span className="mx-1">
