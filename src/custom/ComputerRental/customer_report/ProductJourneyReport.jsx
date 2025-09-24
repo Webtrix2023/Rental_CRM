@@ -373,7 +373,7 @@ function ProductJourneyReport({ product_id }) {
                       </span>
                     )}
                     {product.current_status === 'sold' && (
-                      <span className="inline-block px-3 py-1 rounded-full bg-orange-100 text-orange-100 font-semibold text-xs">
+                      <span className="inline-block px-3 py-1 rounded-full bg-orange-100  font-semibold text-xs">
                         Sold
                       </span>
                     )}
