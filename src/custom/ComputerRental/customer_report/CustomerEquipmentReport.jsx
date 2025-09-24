@@ -42,6 +42,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [action, setAction] = useState('');
   const [selectedRow, setSelectedRow] = useState(null);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [summary, setSummary] = useState({
     ongoing: 0,
@@ -57,6 +58,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
     status: "",
     dateFrom: "",
     dateTo: "",
+    search_text: "",
   });
   const [page, setPage] = useState(1);
   const [records_per_page, setRecordsPerPage] = useState(10);
@@ -65,6 +67,18 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   const handleInputChange = (field, value) => {
     setCustomerID(value);
   };
+
+  // Update debouncedSearch 500ms after user stops typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(filters.search_text);
+    }, 500); // 500ms delay
+
+    return () => {
+      clearTimeout(handler); // cancel previous timer on new keystroke
+    };
+  }, [filters.search_text]);
+
 
   const fetchData = async function () {
     setLoading(true);
@@ -75,10 +89,11 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         customer_id: customerId,
         customerName: encodeURIComponent(customerName),
         curpage: String(page - 1),
-        // action : filters.status,
+        action : filters.status,
         assetType: filters.assetType,
         dateFrom: filters.dateFrom,
         dateTo: filters.dateTo,
+        search_text: filters.search_text,
       })
     }
     );
@@ -142,17 +157,18 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   // --- Fetch Data
   useEffect(() => {
     fetchData();
-  }, [customerId, customerName, filters, page]);
+  }, [customerId, customerName, filters.assetType, filters.status, filters.dateFrom, filters.dateTo, debouncedSearch, page]);
 
-  const filtered = equipments.filter((row) => {
-    if (filters.status && (filters.status === "Ongoing" || filters.status === "Returned" || filters.status === "Replaced")) {
-      if (row.status !== filters.status) return false;
-    }
-    return true;
-  });
-
-  const not_replacement = equipments.filter((row) => row.is_close === 'n' && (!row.replace_row_id) && (row.is_replacement == 'n' || row.replaced_product_data)  );
-
+  // const filtered = equipments.filter((row) => {
+  //   if (filters.status && (filters.status === "Ongoing" || filters.status === "Returned" || filters.status === "Replaced")) {
+  //     if (row.status !== filters.status) return false;
+  //   }
+  //   return true;
+  // });
+  const filtered = equipments ;
+  const not_replacement = equipments.filter((row) => row.row_close === 'n' && (!row.replace_row_id) && (row.is_replacement == 'n' || row.replaced_product_data)  );
+  console.log('not_replacement : ',not_replacement);
+  
   const PAGE_SIZE = 5;
   const paged = filtered.slice((page - 1) * records_per_page, page * records_per_page);
 
@@ -222,10 +238,16 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
       </div>
 
       {/* Filters */}
-      <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-2 md:gap-3 bg-white rounded-lg shadow px-3 md:px-8 py-3 md:py-4 items-start md:items-end mb-5">
+      <div className="relative max-w-5xl mx-auto flex flex-col md:flex-row gap-2 md:gap-3 bg-white rounded-lg shadow px-3 md:px-8 py-3 md:py-4 items-start md:items-end mb-5">
+        <div className="w-full md:w-auto">
+            <div className="text-xs mb-1">Product </div>
+            <input type="text" placeholder="Search" className="ws-input form-input bg-gray-100 rounded px-3 py-2 text-gray-600 text-sm w-full md:w-45" 
+              onChange={e => setFilters(f => ({ ...f, search_text: e.target.value }))} 
+            />
+        </div>
         <div className="w-full md:w-auto">
           <div className="text-xs mb-1">Asset Type</div>
-          <select className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-50"
+          <select className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45"
             value={filters.assetType}
             onChange={e => setFilters(f => ({ ...f, assetType: e.target.value }))}
           >
@@ -237,7 +259,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         <div className="w-full md:w-auto">
           <div className="text-xs mb-1">Status</div>
           <select
-            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-50"
+            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45"
             value={filters.status}
             onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
           >
@@ -251,7 +273,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
           <div className="text-xs mb-1">Date From</div>
           <input
             type="date"
-            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-50"
+            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45"
             value={filters.dateFrom}
             onChange={e => setFilters(f => ({ ...f, dateFrom: e.target.value }))}
           />
@@ -260,14 +282,14 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
           <div className="text-xs mb-1">Date To</div>
           <input
             type="date"
-            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-50"
+            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45"
             value={filters.dateTo}
             onChange={e => setFilters(f => ({ ...f, dateTo: e.target.value }))}
           />
         </div>
         {Object.values(filters).some(val => val !== "") &&
           (<button
-            className="w-full md:w-auto mt-2 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold text-sm"
+            className="absolute -top-5 w-full md:w-auto -right-5 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-full font-semibold text-xs"
             onClick={e => {
               e.preventDefault();
               setFilters(
@@ -280,7 +302,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
               // setPage(1);
             }}
           >
-            <span className="mr-1">❌</span>Clear
+           X clear
           </button>)}
       </div>
 

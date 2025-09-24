@@ -23,6 +23,7 @@ export const ReportExport = function ReportExport({ filters, customerId, custome
         customer_id: customerId,
         customerName: encodeURIComponent(customerName),
         // curpage: String(page - 1),
+        search_text : filters.search_text,
         action : filters.status,
         assetType : filters.assetType,
         dateFrom : filters.dateFrom,
