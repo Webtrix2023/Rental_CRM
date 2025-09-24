@@ -48,7 +48,7 @@ function ContarctEnding() {
         const product_details = line.product_details || {};
 
         return (
-            <div className="flex items-center border bg-white border-gray-200 p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer">
+            <div className="flex items-center border bg-gray-50 border-gray-200 p-3 rounded-lg mb-2 hover:bg-white transition cursor-pointer">
                 <div className="mr-4 flex-1">
                     <div className="block text-gray-600 mb-1">
                         <span className="ml-1">
@@ -87,7 +87,7 @@ function ContarctEnding() {
     }
 
     return (
-        <div className="rounded-xl shadow-sm border border-gray-100 bg-gray-100 px-3 pt-7 w-full flex flex-col">
+        <div className="rounded-xl shadow border border-gray-200 bg-white px-3 pt-7 w-full flex flex-col">
             <label className="text-lg font-semibold text-gray-700 mb-4" htmlFor="">
                 Contract Ending Assets
             </label>
