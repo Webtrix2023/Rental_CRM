@@ -236,12 +236,12 @@ export default function PendingBillingReport() {
             </div>
             <button className="border px-3 py-1 mt-5 rounded text-sm text-gray-700 hover:bg-gray-50" onClick={()=>{
               setCustomerID(null);
-              setStatus(null);
+              setStatus('');
               setType(null);
               setPage(0);
             }}>Reset</button>
             {/* Action Buttons */}
-            <div className="flex gap-2 justify-end w-120">
+            <div className="flex gap-2 justify-end w-[500px]">
               <button className="flex items-center gap-2 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 text-sm font-medium shadow" onClick={() => {
                 navigate("/invoice-calculator");
               }} ><FaPlus /> Create Invoice</button>
