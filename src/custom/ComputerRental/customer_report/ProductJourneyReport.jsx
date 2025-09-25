@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@config";
-import { Plus, MessageCircleWarning, Truck, ArrowUp, RotateCcw, Laptop, LaptopMinimal, Smartphone } from "lucide-react";
+import { Plus, MessageCircleWarning, Truck, ArrowUp, RotateCcw, Laptop, LaptopMinimal, Smartphone ,AlertTriangle ,Wrench ,PackageCheck } from "lucide-react";
 import { fetchJson } from "@utils/fetchJson";
 import ProductSearchInput from "../Delivery/ProductSearchInput";
 import React, { useEffect, useState, useRef } from "react";
@@ -142,6 +142,50 @@ function ProductJourneyReport({ product_id }) {
                     <div className="flex-1">Purchase Price : ₹ {product_details?.purchase_price ?? '-'}</div>
                   </>
                 ),
+              });
+            } else if (h.action === "sold") {
+              steps.push({
+                type: "sold",
+                title: "Product is Sold",
+                icon: (
+                  <div className="text-white bg-green-500 p-1.5 rounded-full flex items-center justify-center">
+                    <PackageCheck size={12} strokeWidth={4} />
+                  </div>
+                ),
+                desc:<>
+                    {/* <span>Product sold by {h.created_by || '-'}</span> */}
+                </>,
+                date: formatDate(h.created_date),
+                meta: { condition: "New" },
+                footer:<></>,
+              });
+            } else if (h.action === "in_maintenance") {
+              steps.push({
+                type: "in_maintenance",
+                title: "Product is in maintenance",
+                icon: (
+                  <div className="bg-red-500 text-white p-1.5 rounded-full flex items-center justify-center">
+                    <Wrench size={12} strokeWidth={4} />
+                  </div>
+                ),
+                desc:<></>,
+                date: formatDate(h.created_date),
+                meta: { condition: "New" },
+                footer:<></>,
+              });
+            } else if (h.action === "damaged") {
+              steps.push({
+                type: "sold",
+                title: "Product is damaged",
+                icon: (
+                  <div className="bg-yellow-500 text-white p-1.5 rounded-full flex items-center justify-center">
+                    <AlertTriangle size={12} strokeWidth={4} />
+                  </div>
+                ),
+                desc:<></>,
+                date: formatDate(h.created_date),
+                meta: { condition: "New" },
+                footer:<></>,
               });
             } else if (h.action === "delivered") {
               steps.push({

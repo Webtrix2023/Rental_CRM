@@ -101,10 +101,9 @@ export default function QuotationItemRow({
             value={safeParse(data.productObject)}
             disabledProductIds={disabledProductIds}
             //stockDisable={false}
-            stockCheckDisable={false}
+            stockCheckDisable={true}
             onChange={prod => {
               if (prod) {
-                console.log(prod);
                 updateRow(index, {
                   qtyDisable: prod ? prod.qtyBalance === "1" ? true : false : false,
                   invoiceLineChrgID: prod ? prod.product_id : "",
@@ -114,7 +113,7 @@ export default function QuotationItemRow({
                   igst: prod ? prod.tax : 0,
                   discount: prod ? prod.discount : 0,
                   discount_type: prod ? prod.discount_type : 'per',
-                  invoiceLineAmount: prod ? `${prod.price ? (prod.price * prod.qtyBalance) : 0}` : 0,
+                  invoiceLineAmount: prod ? (prod.price ? (prod.price * 1 ) : 0) : 0,
                   invoiceLineNarr: [
                     prod.productName,
                     prod.modelName,
