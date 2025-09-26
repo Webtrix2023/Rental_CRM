@@ -8,6 +8,9 @@ import {
   Truck,
   RotateCcw,
   Package,
+  AlertTriangle,
+  Wrench,
+  PackageCheck 
 } from "lucide-react";
 import { fetchJson } from "@utils/fetchJson";
 import ProductSearchInput from "../Delivery/ProductSearchInput";
@@ -42,6 +45,7 @@ function safeParse(obj) {
 }
 
 export const ProductLastActivity = ({ product_id,text='',open=false,setOpen,color, textColor }) => {
+// export const ProductLastActivity = ({ product_id,text='',color, textColor }) => {
   const [loading, setLoading] = useState(false);
   // const [open, setOpen] = useState(false);
   const [product, setProduct] = useState(null);
@@ -102,6 +106,50 @@ export const ProductLastActivity = ({ product_id,text='',open=false,setOpen,colo
         ),
         desc: <span>Product purchased and added to rental inventory</span>,
         date: formatDate(history.created_date),
+      });
+    } else if (history.action === "sold") {
+      steps.push({
+        type: "sold",
+        title: "Product is Sold",
+        icon: (
+          <div className="text-white bg-green-500 p-1.5 rounded-full flex items-center justify-center">
+            <PackageCheck size={12} strokeWidth={4} />
+          </div>
+        ),
+        desc:<>
+            {/* <span>Product sold by {h.created_by || '-'}</span> */}
+        </>,
+        date: formatDate(history.created_date),
+        meta: { condition: "New" },
+        footer:<></>,
+      });
+    } else if (history.action === "in_maintenance") {
+      steps.push({
+        type: "in_maintenance",
+        title: "Product is in maintenance",
+        icon: (
+          <div className="bg-red-500 text-white p-1.5 rounded-full flex items-center justify-center">
+            <Wrench size={12} strokeWidth={4} />
+          </div>
+        ),
+        desc:<></>,
+        date: formatDate(history.created_date),
+        meta: { condition: "New" },
+        footer:<></>,
+      });
+    } else if (history.action === "damaged") {
+      steps.push({
+        type: "sold",
+        title: "Product is damaged",
+        icon: (
+          <div className="bg-yellow-500 text-white p-1.5 rounded-full flex items-center justify-center">
+            <AlertTriangle size={12} strokeWidth={4} />
+          </div>
+        ),
+        desc:<></>,
+        date: formatDate(history.created_date),
+        meta: { condition: "New" },
+        footer:<></>,
       });
     } else if (action === "delivered") {
       steps.push({
