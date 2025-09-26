@@ -45,7 +45,6 @@ function safeParse(obj) {
 }
 
 export const ProductLastActivity = ({ product_id,text='',open=false,setOpen,color, textColor }) => {
-// export const ProductLastActivity = ({ product_id,text='',color, textColor }) => {
   const [loading, setLoading] = useState(false);
   // const [open, setOpen] = useState(false);
   const [product, setProduct] = useState(null);
@@ -249,15 +248,12 @@ export const ProductLastActivity = ({ product_id,text='',open=false,setOpen,colo
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className={`flex items-center justify-center gap-2 px-4 py-2 w-3xs ${
-          color || "bg-blue-500"
-        } text-white rounded-lg shadow hover:bg-blue-400 transition`}
-      >
-        <ClockAlert size={24} color="#ffffff" />
-        <span>{text || "Last Activity"}</span>
-      </button>
+      {text !== "" &&(
+        <button onClick={() => setOpen?.(true)} className={`flex items-center justify-center gap-2 px-4 py-2 w-3xs ${color} text-white rounded-sm shadow hover:bg-blue-400 transition`}>
+          <ClockAlert size={18} color="#ffffff" />
+          <span className="text-md">{text || "Last Activity"}</span>
+        </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#8f8f8fab] bg-opacity-40 px-4">
