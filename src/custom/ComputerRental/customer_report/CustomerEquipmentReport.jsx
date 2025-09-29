@@ -262,6 +262,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         <div className="w-full md:w-auto">
           <div className="text-xs mb-1">Product </div>
           <input type="text" placeholder="Search" className="ws-input form-input bg-gray-100 rounded px-3 py-2 text-gray-600 text-sm w-full md:w-45"
+            value={filters.search_text}
             onChange={e => setFilters(f => ({ ...f, search_text: e.target.value }))}
           />
         </div>
@@ -392,6 +393,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                   billing_type: "",
                   contract_end_to: "",
                   contract_end_from: "",
+                  search_text: "",
                   status: "",
                   dateFrom: "",
                   dateTo: "",
