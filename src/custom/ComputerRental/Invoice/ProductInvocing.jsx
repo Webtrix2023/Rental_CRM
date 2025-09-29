@@ -61,10 +61,7 @@ export default function ProductInvocing() {
       [field]: value,
     }));
   };
-  // const today = new Date();
-  // const [lastInvoiceDate, setlastInvoiceDate] = useState(today);
   const [lastInvoiceDate, setlastInvoiceDate] = useState(null);
-  // let lastInvoiceDate = null;
   // Demo summary stats
   const [summary, setSummary] = useState({
     activeAssets: 0,
@@ -226,8 +223,11 @@ export default function ProductInvocing() {
       }
     ).then((res) => {
       const data = res.data ?? {};
-      // lastInvoiceDate = data.last_invoice_date;      
-      setlastInvoiceDate(data.last_invoice_date);
+      if (res.flag == 'S') {
+        setlastInvoiceDate(data.last_invoice_date);
+      }else{
+        setlastInvoiceDate(new Date());
+      }
     }).finally(() => setLoading(false));
   }
 

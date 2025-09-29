@@ -4,7 +4,8 @@ import { fetchJson } from "@utils/fetchJson";
 import { ReportExport } from "./ReportExport";
 import { ActionPopup } from "./ActionPopup";
 import { UpgradePopup } from "./UpgradePopup";
-import { ReplaceAll,MessageCircleWarning, Laptop, ArrowDown01, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown , BadgeInfo , ArrowUpFromLine } from "lucide-react";
+import DatePicker from "react-datepicker";
+import { ReplaceAll, MessageCircleWarning, Laptop, ArrowDown01, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown, BadgeInfo, ArrowUpFromLine } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
 
 // Helper for status color
@@ -55,6 +56,9 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   });
   const [filters, setFilters] = useState({
     assetType: "",
+    billing_type: "",
+    contract_end_from: "",
+    contract_end_to: "",
     status: "",
     dateFrom: "",
     dateTo: "",
@@ -80,6 +84,19 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   }, [filters.search_text]);
 
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    try {
+      const d = new Date(dateStr.replace(/-/g, "/"));
+      return d.toLocaleDateString("en-GB", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    } catch {
+      return "-";
+    }
+  }
   const fetchData = async function () {
     setLoading(true);
     const res = await fetchJson(`${API_BASE_URL}/rentalReports`, {
@@ -89,8 +106,11 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         customer_id: customerId,
         customerName: encodeURIComponent(customerName),
         curpage: String(page - 1),
-        action : filters.status,
+        action: filters.status,
         assetType: filters.assetType,
+        billing_type: filters.billing_type,
+        contract_end_from: filters.contract_end_from,
+        contract_end_to: filters.contract_end_to,
         dateFrom: filters.dateFrom,
         dateTo: filters.dateTo,
         search_text: filters.search_text,
@@ -157,7 +177,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   // --- Fetch Data
   useEffect(() => {
     fetchData();
-  }, [customerId, customerName, filters.assetType, filters.status, filters.dateFrom, filters.dateTo, debouncedSearch, page]);
+  }, [customerId, customerName, filters, debouncedSearch, page]);
 
   // const filtered = equipments.filter((row) => {
   //   if (filters.status && (filters.status === "Ongoing" || filters.status === "Returned" || filters.status === "Replaced")) {
@@ -165,10 +185,10 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
   //   }
   //   return true;
   // });
-  const filtered = equipments ;
-  const not_replacement = equipments.filter((row) => row.row_close === 'n' && (!row.replace_row_id) && (row.is_replacement == 'n' || row.replaced_product_data)  );
-  console.log('not_replacement : ',not_replacement);
-  
+  const filtered = equipments;
+  const not_replacement = equipments.filter((row) => row.row_close === 'n' && (!row.replace_row_id) && (row.is_replacement == 'n' || row.replaced_product_data));
+  console.log('not_replacement : ', not_replacement);
+
   const PAGE_SIZE = 5;
   const paged = filtered.slice((page - 1) * records_per_page, page * records_per_page);
 
@@ -238,12 +258,12 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
       </div>
 
       {/* Filters */}
-      <div className="relative max-w-5xl mx-auto flex flex-col md:flex-row gap-2 md:gap-3 bg-white rounded-lg shadow px-3 md:px-8 py-3 md:py-4 items-start md:items-end mb-5">
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row flex-wrap gap-2 md:gap-3 bg-white rounded-lg shadow px-3 md:px-8 py-3 md:py-4 items-start md:items-end mb-5">
         <div className="w-full md:w-auto">
-            <div className="text-xs mb-1">Product </div>
-            <input type="text" placeholder="Search" className="ws-input form-input bg-gray-100 rounded px-3 py-2 text-gray-600 text-sm w-full md:w-45" 
-              onChange={e => setFilters(f => ({ ...f, search_text: e.target.value }))} 
-            />
+          <div className="text-xs mb-1">Product </div>
+          <input type="text" placeholder="Search" className="ws-input form-input bg-gray-100 rounded px-3 py-2 text-gray-600 text-sm w-full md:w-45"
+            onChange={e => setFilters(f => ({ ...f, search_text: e.target.value }))}
+          />
         </div>
         <div className="w-full md:w-auto">
           <div className="text-xs mb-1">Asset Type</div>
@@ -269,32 +289,109 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
             <option value="Replaced">Replaced</option>
           </select>
         </div>
+
         <div className="w-full md:w-auto">
           <div className="text-xs mb-1">Date From</div>
-          <input
-            type="date"
-            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45"
-            value={filters.dateFrom}
-            onChange={e => setFilters(f => ({ ...f, dateFrom: e.target.value }))}
+          <DatePicker
+            selected={filters.dateFrom || null}
+            onChange={(date) => {
+              setFilters(f => ({
+                ...f, dateFrom: date
+                  ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
+                  : null
+              }))
+            }
+            }
+            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45 mr-3"
+            placeholderText="Select a date"
+            dateFormat="yyyy-MM-dd"
           />
         </div>
         <div className="w-full md:w-auto">
           <div className="text-xs mb-1">Date To</div>
-          <input
-            type="date"
-            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45"
-            value={filters.dateTo}
-            onChange={e => setFilters(f => ({ ...f, dateTo: e.target.value }))}
+          <DatePicker
+            selected={filters.dateTo || null}
+            onChange={(date) => {
+              setFilters(f => ({
+                ...f, dateTo: date
+                  ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
+                  : null
+              }))
+            }
+            }
+            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45 mr-3"
+            placeholderText="Select a date"
+            dateFormat="yyyy-MM-dd"
           />
         </div>
+        <div className="w-full md:w-auto">
+          <div className="text-xs mb-1">Billing Type</div>
+          <select
+            className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45"
+            value={filters.billing_type}
+            onChange={(e) => setFilters(f => ({
+              ...f,
+              billing_type: e.target.value,
+              contract_end: e.target.value === "contract" ? f.contract_end : ""
+            }))}
+          >
+            <option value="">All Billing Type</option>
+            <option value="day">Day</option>
+            <option value="monthly">Monthly</option>
+            <option value="contract">Contract</option>
+          </select>
+        </div>
+        {
+          filters.billing_type === 'contract' && (
+            <>
+              <div className="w-full md:w-auto">
+                <div className="text-xs mb-1">Contract End In</div>
+                <div className="flex md:w-100">
+                  <DatePicker
+                    selected={filters.contract_end_from || null}
+                    onChange={(date) => {
+                      setFilters(f => ({
+                        ...f, contract_end_from: date
+                          ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
+                          : null
+                      }))
+                    }
+                    }
+                    className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w- md:w-45 mr-3"
+                    placeholderText="Start date"
+                    dateFormat="yyyy-MM-dd"
+                  />
+                  <DatePicker
+                    selected={filters.contract_end_to || null}
+                    onChange={(date) => {
+                      setFilters(f => ({
+                        ...f, contract_end_to: date
+                          ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
+                          : null
+                      }))
+                    }
+                    }
+                    className="ws-input form-input bg-gray-100 rounded px-3 py-2 pr-10 text-gray-600 text-sm w-full md:w-45 mr-3"
+                    placeholderText="End date"
+                    dateFormat="yyyy-MM-dd"
+                  />
+                </div>
+              </div>
+            </>
+          )
+        }
         {Object.values(filters).some(val => val !== "") &&
           (<button
-            className="absolute -top-5 w-full md:w-auto -right-5 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-full font-semibold text-xs"
+            // className="absolute -top-5 w-full md:w-auto -right-5 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-full font-semibold text-xs"
+            className="w-full md:w-auto mt-2 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold text-sm"
             onClick={e => {
               e.preventDefault();
               setFilters(
                 {
                   assetType: "",
+                  billing_type: "",
+                  contract_end_to: "",
+                  contract_end_from: "",
                   status: "",
                   dateFrom: "",
                   dateTo: "",
@@ -302,7 +399,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
               // setPage(1);
             }}
           >
-           X clear
+            <span className="mr-1">❌</span>Clear
           </button>)}
       </div>
 
@@ -312,7 +409,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         {/* Desktop Table */}
         <div className="hidden md:block w-full max-h-[400px] overflow-x-auto overflow-y-auto">
           <table className="min-w-full">
-            <thead className="sticky top-0 bg-white z-50" >
+            <thead className="sticky top-0 bg-white z-0" >
               <tr className="text-xs text-gray-500 font-semibold border-b border-b-gray-300 bg-white">
                 <th className="py-2 text-left">Asset Info</th>
                 <th className="py-2 text-left">Delivery Challan No.</th>
@@ -338,102 +435,107 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
               ) : (
                 paged.map((row, idx) => (
                   <>
-                  <tr key={idx} className="text-sm ">
-                    <td className="py-3">
-                      <div className="font-medium text-gray-700">
-                        {row.invoiceLineNarr || "-"}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        <span>
-                          {row.product_serial_no || row.serial_no || "-"}
-                        </span>
-                        <span className="ml-1">
-                          {`( ${capitalize(row.billing_type)} )` || "-"}
-                        </span>
-                        
-                      </div>
-                    </td>
-                    <td className="py-3">
-                      <div>{row.invoiceNumber || "-"}</div>
-                      <div className="text-xs text-gray-400">
-                        {row.delivery_date || "-"}
-                      </div>
-                    </td>
-                    <td className="py-3">
-                      <div>
-                        {row.durationDays
-                          ? `${row.durationDays} Days`
-                          : "-"}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {row.durationMonths
-                          ? `${row.durationMonths} Months`
-                          : ""}
-                      </div>
-                    </td>
-                    <td className="py-3">
-                      <div>
-                        ₹
-                        {row.invoiceLineRate
-                          ? `${row.invoiceLineRate}/month`
-                          : "-"}
-                      </div>
-                      {row.last_bill_date &&
+                    <tr key={idx} className="text-sm ">
+                      <td className="py-3">
+                        <div className="font-medium text-gray-700">
+                          {row.invoiceLineNarr || "-"}
+                        </div>
                         <div className="text-xs text-gray-400">
-                          Last Invoice Date : {row.last_bill_date || "-"}
-                        </div>}
-                    </td>
-                    <td className="py-3">
-                      <StatusPill status={row.status} />
-                    </td>
-                    <td className="py-3 relative">
-                      {Array.isArray(row?.upgradeLines) && row.upgradeLines.length > 0 && (
-                        <div className="absolute top-0 right-0 group">
-                          <BadgeInfo size={18} color="#4d6aff" onClick={()=>{ setSelectedRow(row) ; setShowUpgradeModal(true)}} />
-                          <span className="absolute right-4 top-8 -translate-y-1/2 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
-                            View upgrade details
+                          <span>
+                            {row.product_serial_no || row.serial_no || "-"}
+                          </span>
+                          <span className="ml-1">
+                            {`[ ${capitalize(row.billing_type)} ]` || "-"}
+                          </span>
+
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          <span className="">
+                            {row.billing_type === 'contract' ? `Contract Period : ${formatDate(row.contract_start)} to ${formatDate(row.contract_end)}` : ''}
                           </span>
                         </div>
-                      )}
-                      {row.action === "return" ? (
+                      </td>
+                      <td className="py-3">
+                        <div>{row.invoiceNumber || "-"}</div>
+                        <div className="text-xs text-gray-400">
+                          {row.delivery_date || "-"}
+                        </div>
+                      </td>
+                      <td className="py-3">
                         <div>
-                          <div>{row.return_date || "-"}</div>
-                          <div className="text-xs text-red-500">
-                            {row.reason || ""}
-                          </div>
+                          {row.durationDays
+                            ? `${row.durationDays} Days`
+                            : "-"}
                         </div>
-                      ) : row.action === "replace" ? (
+                        <div className="text-xs text-gray-400">
+                          {row.durationMonths
+                            ? `${row.durationMonths} Months`
+                            : ""}
+                        </div>
+                      </td>
+                      <td className="py-3">
                         <div>
-                          <div className="text-xs text-blue-500">Replaced on: {row.return_date || "-"}</div>
-                          <div className="text-xs text-blue-500">Replaced with: {row.replaced_product.product_name || "-"} ({row.replaced_product.product_serial_no || "-"})</div>
-                          <div className="text-xs text-gray-600">{row.reason || ""}</div>
+                          ₹
+                          {row.invoiceLineRate
+                            ? `${row.invoiceLineRate}/month`
+                            : "-"}
                         </div>
-                      ) : (
-                        <div className="flex gap-0.5">
-                          <button className={`w-full ${row.is_replacement == 'y' && !row.replaced_product_data ? 'md:w-1/3' : 'md:w-1/2'} flex items-center justify-center mt-1 gap-1 bg-red-500 hover:bg-red-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('return'); setShowReturnModal(true); }}> <RotateCcw size={14} /> Return </button>
-                          <button className={`w-full ${row.is_replacement == 'y' && !row.replaced_product_data ? 'md:w-1/3' : 'md:w-1/2'}  flex items-center justify-center mt-1 gap-1 bg-orange-500 hover:bg-orange-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('upgrade'); setShowReturnModal(true); }}> <ArrowUpFromLine size={14} /> Upgrade </button>
-                          {row.is_replacement == 'y' && !row.replaced_product_data &&
-                            <button className={`w-full md:w-1/3 flex items-center justify-center mt-1 gap-1 bg-blue-500 hover:bg-blue-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('replace'); setShowReturnModal(true); }}> <ArrowUpDown size={14} /> Replace </button>
-                          }
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                  <tr key={idx+1} className="text-sm border-b border-b-gray-300">
-                    {row.note && 
-                      <>
-                        <td colSpan={7}>
-                          <div className="flex items-start align-middle gap-2 bg-yellow-50 p-1 shadow-sm border border-yellow-50">
-                            <MessageCircleWarning className="text-orange-800 mt-1" size={16} />
-                            <span className="text-sm text-gray-600 font-sm mr-0.5">Note:</span>
-                            <span className="text-sm text-gray-600 font-sm">
-                              {row.note || "No additional notes"}
+                        {row.last_bill_date &&
+                          <div className="text-xs text-gray-400">
+                            Last Invoice Date : {row.last_bill_date || "-"}
+                          </div>}
+                      </td>
+                      <td className="py-3">
+                        <StatusPill status={row.status} />
+                      </td>
+                      <td className="py-3 relative z-0">
+                        {Array.isArray(row?.upgradeLines) && row.upgradeLines.length > 0 && (
+                          <div className="absolute top-0 right-0 group">
+                            <BadgeInfo size={18} color="#4d6aff" onClick={() => { setSelectedRow(row); setShowUpgradeModal(true) }} />
+                            <span className="absolute right-4 top-8 -translate-y-1/2 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                              View upgrade details
                             </span>
                           </div>
-                        </td>
-                      </>
-                    }
-                  </tr>
+                        )}
+                        {row.action === "return" ? (
+                          <div>
+                            <div>{row.return_date || "-"}</div>
+                            <div className="text-xs text-red-500">
+                              {row.reason || ""}
+                            </div>
+                          </div>
+                        ) : row.action === "replace" ? (
+                          <div>
+                            <div className="text-xs text-blue-500">Replaced on: {row.return_date || "-"}</div>
+                            <div className="text-xs text-blue-500">Replaced with: {row.replaced_product.product_name || "-"} ({row.replaced_product.product_serial_no || "-"})</div>
+                            <div className="text-xs text-gray-600">{row.reason || ""}</div>
+                          </div>
+                        ) : (
+                          <div className="flex gap-0.5">
+                            <button className={`w-full ${row.is_replacement == 'y' && !row.replaced_product_data ? 'md:w-1/3' : 'md:w-1/2'} flex items-center justify-center mt-1 gap-1 bg-red-500 hover:bg-red-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('return'); setShowReturnModal(true); }}> <RotateCcw size={14} /> Return </button>
+                            <button className={`w-full ${row.is_replacement == 'y' && !row.replaced_product_data ? 'md:w-1/3' : 'md:w-1/2'}  flex items-center justify-center mt-1 gap-1 bg-orange-500 hover:bg-orange-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('upgrade'); setShowReturnModal(true); }}> <ArrowUpFromLine size={14} /> Upgrade </button>
+                            {row.is_replacement == 'y' && !row.replaced_product_data &&
+                              <button className={`w-full md:w-1/3 flex items-center justify-center mt-1 gap-1 bg-blue-500 hover:bg-blue-400 text-white px-0.5 py-1 rounded-md font-medium text-xs transition-colors duration-200`} onClick={(e) => { e.preventDefault(); setSelectedRow(row); setAction('replace'); setShowReturnModal(true); }}> <ArrowUpDown size={14} /> Replace </button>
+                            }
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                    <tr key={idx + 1} className="text-sm border-b border-b-gray-300">
+                      {row.note &&
+                        <>
+                          <td colSpan={7}>
+                            <div className="flex items-start align-middle gap-2 bg-yellow-50 p-1 shadow-sm border border-yellow-50">
+                              <MessageCircleWarning className="text-orange-800 mt-1" size={16} />
+                              <span className="text-sm text-gray-600 font-sm mr-0.5">Note:</span>
+                              <span className="text-sm text-gray-600 font-sm">
+                                {row.note || "No additional notes"}
+                              </span>
+                            </div>
+                          </td>
+                        </>
+                      }
+                    </tr>
                   </>
                 ))
               )}
@@ -452,8 +554,8 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
               <button
                 key={i}
                 className={`px-2 py-1 rounded ${i + 1 === page
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-blue-100 text-blue-700"
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-blue-100 text-blue-700"
                   }`}
                 onClick={() => setPage(i + 1)}
               >
@@ -472,7 +574,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
         isOpen={showReturnModal}
         action={action}
         not_replacement={not_replacement}
-        refreshCustomerReport ={fetchData}
+        refreshCustomerReport={fetchData}
         onClose={() => setShowReturnModal(false)}
       />
       <UpgradePopup

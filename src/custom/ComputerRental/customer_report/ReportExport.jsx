@@ -25,7 +25,10 @@ export const ReportExport = function ReportExport({ filters, customerId, custome
         // curpage: String(page - 1),
         search_text : filters.search_text,
         action : filters.status,
-        assetType : filters.assetType,
+        billing_type : filters.billing_type,
+        contract : filters.contract,
+        contract_end_to:filters.contract_end_to,
+        contract_end_from:filters.contract_end_from,
         dateFrom : filters.dateFrom,
         dateTo : filters.dateTo,
     }

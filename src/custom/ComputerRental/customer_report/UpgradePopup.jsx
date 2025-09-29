@@ -7,7 +7,7 @@ export const UpgradePopup = ({ itemRow, isOpen, onClose }) => {
   const upgrade_types = {
     "screensize" : "Screen Size",
     "operating system" : "Operating System",
-    "hdd capacity" : "HDD Capasity",
+    "hdd capacity" : "HDD Capacity",
     "memory" : "Memory",
   };
   if (!isOpen) return null;
