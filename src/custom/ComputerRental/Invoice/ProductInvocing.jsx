@@ -214,8 +214,8 @@ export default function ProductInvocing() {
     getLastInvoiceDate();
   }, []);
 
-  const getLastInvoiceDate = () => {
-    fetchJson(
+  const getLastInvoiceDate = async () => {
+    await fetchJson(
       `${API_BASE_URL}/getLastInvoiceDate`,
       {
         method: "GET",
@@ -230,6 +230,10 @@ export default function ProductInvocing() {
       }
     }).finally(() => setLoading(false));
   }
+  useEffect(() => {
+    console.log("Updated lastInvoiceDate: ", lastInvoiceDate);
+    handleInputChange('invoiceDate', lastInvoiceDate)
+  }, [lastInvoiceDate]);
 
   useEffect(() => {
     setLoading(true);
@@ -345,6 +349,8 @@ export default function ProductInvocing() {
             );
             getDeliveries();
             getLastInvoiceDate();
+            handleInputChange("customGst", 0);
+
           } else {
             swalObj.fire(
               "Failed!",
@@ -489,7 +495,7 @@ export default function ProductInvocing() {
               <div
                 key={a.itemID}
                 className={clsx(
-                  "border p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer",
+                  "border border-gray-200 bg-gray-50 p-3 rounded-lg mb-2 hover:bg-gray-50 transition cursor-pointer",
                   disabled && "opacity-50 pointer-events-none"
                 )}
                 onClick={() => !disabled && toggleSelect(a.itemID)}

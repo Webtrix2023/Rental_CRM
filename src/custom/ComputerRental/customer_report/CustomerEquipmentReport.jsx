@@ -5,6 +5,7 @@ import { ReportExport } from "./ReportExport";
 import { ActionPopup } from "./ActionPopup";
 import { UpgradePopup } from "./UpgradePopup";
 import DatePicker from "react-datepicker";
+import { format } from "date-fns";
 import { ReplaceAll, MessageCircleWarning, Laptop, ArrowDown01, IndianRupee, RotateCcw, CalendarDays, ArrowUpDown, BadgeInfo, ArrowUpFromLine } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
 
@@ -297,9 +298,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
             selected={filters.dateFrom || null}
             onChange={(date) => {
               setFilters(f => ({
-                ...f, dateFrom: date
-                  ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
-                  : null
+                ...f, dateFrom: format(new Date(date), "yyyy-MM-dd")
               }))
             }
             }
@@ -314,9 +313,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
             selected={filters.dateTo || null}
             onChange={(date) => {
               setFilters(f => ({
-                ...f, dateTo: date
-                  ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
-                  : null
+                ...f, dateTo:format(new Date(date), "yyyy-MM-dd")
               }))
             }
             }
@@ -352,9 +349,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                     selected={filters.contract_end_from || null}
                     onChange={(date) => {
                       setFilters(f => ({
-                        ...f, contract_end_from: date
-                          ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
-                          : null
+                        ...f, contract_end_from: format(new Date(date), "yyyy-MM-dd")
                       }))
                     }
                     }
@@ -366,9 +361,7 @@ export default function CustomerEquipmentReport({ customer_id, customerName }) {
                     selected={filters.contract_end_to || null}
                     onChange={(date) => {
                       setFilters(f => ({
-                        ...f, contract_end_to: date
-                          ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
-                          : null
+                        ...f, contract_end_to: format(new Date(date), "yyyy-MM-dd")
                       }))
                     }
                     }

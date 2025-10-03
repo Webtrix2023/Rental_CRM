@@ -3,6 +3,8 @@ import { API_BASE_URL } from "@config";
 import { fetchJson } from "@utils/fetchJson";
 import { SmartSelectInput } from "@components/index";
 import DatePicker from "react-datepicker";
+import { format } from "date-fns";
+
 
 function ContractEnding() {
     const [loading, setLoading] = useState(false);
@@ -15,7 +17,7 @@ function ContractEnding() {
     useEffect(() => {
         setLoading(true);
         async function fetchData() {
-            const res = await fetchJson(`${API_BASE_URL}/contract_ending_assets`, {
+            const res = await fetchJson(`${API_BASE_URL}contract_ending_assets`, {
                 method: 'POST',
                 body: JSON.stringify(filters)
             });
@@ -103,9 +105,7 @@ function ContractEnding() {
                                 selected={filters.contract_end_from || null}
                                 onChange={(date) => {
                                     setFilters(f => ({
-                                        ...f, contract_end_from: date
-                                            ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
-                                            : null
+                                        ...f, contract_end_from: format(new Date(date), "yyyy-MM-dd")
                                     }))
                                 }
                                 }
@@ -119,9 +119,7 @@ function ContractEnding() {
                                 selected={filters.contract_end_to || null}
                                 onChange={(date) => {
                                     setFilters(f => ({
-                                        ...f, contract_end_to: date
-                                            ? date.toISOString().split('T')[0] // "yyyy-mm-dd"
-                                            : null
+                                        ...f, contract_end_to: format(new Date(date), "yyyy-MM-dd")
                                     }))
                                 }
                                 }

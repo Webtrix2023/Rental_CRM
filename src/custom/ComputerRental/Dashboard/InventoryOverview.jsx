@@ -8,9 +8,10 @@ export default function InventoryOverview() {
     utilization_rate : 0,
     on_rent_count : 0,
     available_count : 0,
-    reserved_count : 0,
     total_count : 0,
-    under_repaired_count:0
+    in_maintenance_count : 0,
+    damaged_count : 0,
+    sold_count:0
   };
 
   const [dataModel,setDataModel] = useState(deDataModel);
@@ -60,6 +61,18 @@ export default function InventoryOverview() {
               <span className="text-2xl font-bold text-orange-500">{dataModel.on_rent_count || 0}</span>
               <span className="text-md text-gray-600 font-medium">On Rent</span>
             </div>
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-2xl font-bold text-violet-500">{dataModel.damaged_count || 0}</span>
+              <span className="text-md text-gray-600 font-medium">Damaged</span>
+            </div>
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-2xl font-bold text-red-500">{dataModel.sold_count || 0}</span>
+              <span className="text-md text-gray-600 font-medium">Sold</span>
+            </div>
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-2xl font-bold text-gray-500">{dataModel.in_maintenance_count || 0}</span>
+              <span className="text-md text-gray-600 font-medium">In Maintenance</span>
+            </div>
           </div>
 
           <div className="mt-4 mb-2 text-sm font-medium text-gray-700">Utilization Rate</div>
@@ -80,8 +93,10 @@ export default function InventoryOverview() {
             <InventoryPieChart
                 available={dataModel.total_count || 0 }
                 onRent={dataModel.on_rent_count || 0}
-                underRepair={dataModel.under_repaired_count || 0}
-                reserved={dataModel.reserved_count || 0}
+
+                inMaintainence={dataModel.in_maintenance_count || 0}
+                sold={dataModel.sold_count || 0}
+                damaged={dataModel.damaged_count || 0}
                 />
           </div>
           </>
