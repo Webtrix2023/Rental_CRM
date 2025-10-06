@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { fetchJson } from "@utils/fetchJson";
 import { sendAccessToken, loadFacebookSDK, clearAccessToken } from "../../API/facebookAuth";
 
-export default function Prerequisites({ wizard, setWizard, saveStep, company_id }) {
+export default function Prerequisites({ wizard, setWizard, saveStep, company_id , setConfiguration}) {
   const isCloud = wizard.method === 'cloud';
   const [loadingGlobal, setLoadingGlobal] = useState(true);
   const [loadingFB, setLoadingFB] = useState(false);
@@ -40,9 +40,7 @@ export default function Prerequisites({ wizard, setWizard, saveStep, company_id 
       (response) => {
         if (response.authResponse) {
           const { accessToken } = response.authResponse;
-          console.log('accessToken : ', accessToken);
-
-          sendAccessToken(accessToken, company_id).then(success => {
+          sendAccessToken(accessToken, company_id,setConfiguration).then(success => {
             if (success) {
               setWizard(prev => ({
                 ...prev,
@@ -91,7 +89,13 @@ export default function Prerequisites({ wizard, setWizard, saveStep, company_id 
           create_waba: !waba
         }
       }));
-      if (res?.flag !== "S") toast.error(res.msg);
+      if (res?.flag == "S"){
+        setConfiguration(c => ({
+          ...c,
+          config_json : res.data.config_json ? res.data.config_json : {}
+        }));
+      }
+    if (res?.flag !== "S") toast.error(res.msg);
       setWizupdate(prev => prev + 1);
     } catch (e) {
       toast.error("Network error while detecting WABA.");

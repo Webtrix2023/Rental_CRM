@@ -13,21 +13,20 @@ function Loader() {
   );
 }
 
-export default function SelectNumber({ wizard, setWizard, saveStep, company_id }) {
+export default function SelectNumber({ wizard, setWizard, saveStep, company_id ,setConfiguration }) {
   return wizard.method === "cloud" ? (
-    <CloudSelectNumber wizard={wizard} setWizard={setWizard} saveStep={saveStep} company_id={company_id} />
+    <CloudSelectNumber wizard={wizard} setWizard={setWizard} saveStep={saveStep} company_id={company_id} setConfiguration={setConfiguration} />
   ) : (
-    <VerifyWANumber wizard={wizard} setWizard={setWizard} saveStep={saveStep} company_id={company_id} />
+    <VerifyWANumber wizard={wizard} setWizard={setWizard} saveStep={saveStep} company_id={company_id} setConfiguration={setConfiguration} />
   )
 }
 
-function VerifyWANumber({ wizard, setWizard, saveStep, company_id }) {
+function VerifyWANumber({ wizard, setWizard, saveStep, company_id, setConfiguration }) {
   const [loading, setLoading] = useState(false);
-  const [mobile_no, setMobileNo] = useState('');
+  const [mobile_no, setMobileNo] = useState( wizard.numberId || '');
 
   const verifyMobileNo = async () => {
     setLoading(true);
-
     // 1. Empty check
     if (!mobile_no || mobile_no.trim() === '') {
       toast.error("Please fill registered WhatsApp number.");
@@ -57,7 +56,17 @@ function VerifyWANumber({ wizard, setWizard, saveStep, company_id }) {
       setLoading(false);
 
       if (res?.flag === "S") {
+        console.log('mobile_no : ',mobile_no);
+        
         setWizard((w) => ({ ...w, numberId: mobile_no }));
+        setConfiguration((w) => ({ 
+          ...w,
+          config_json:{
+            ...w.config_json,
+            whatsapp_number : mobile_no
+          }
+          // is_default : 'Y'
+        }));        
         toast.success("Number verified successfully!");
       } else {
         toast.error(`${res.msg || "Verification failed"}`);
@@ -82,7 +91,8 @@ function VerifyWANumber({ wizard, setWizard, saveStep, company_id }) {
               <>
                 <div>
                   <label className="text-xs text-slate-600">WhatsApp Number</label>
-                  <Input placeholder="+91xxxxxxxxxx" value={mobile_no} onChange={(e) => {
+                  <Input placeholder="+91xxxxxxxxxx" value={wizard.numberId || mobile_no} onChange={(e) => {
+                    console.log('val : ',e.target.value);
                     setMobileNo(e.target.value)
                   }} />
                 </div>
@@ -175,6 +185,13 @@ function CloudSelectNumber({ wizard, setWizard, saveStep, company_id }) {
       if (res?.flag === "S") {
         setSelectedId(numberId);
         toast.success("Active number updated");
+        setConfiguration((w) => ({ 
+          ...w,
+          config_json:{
+            ...w.config_json,
+            whatsapp_number_id : numberId
+          }
+        }));  
       } else {
         toast.error(res.msg || "Failed to set active number");
       }

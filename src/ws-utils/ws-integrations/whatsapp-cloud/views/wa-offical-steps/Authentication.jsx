@@ -4,7 +4,6 @@ import { Check } from "lucide-react";
 import { API_BASE_URL, APP_ID } from "@config";
 import Cookies from 'js-cookie';
 import { fetchJson } from "@utils/fetchJson";
-import { toast } from "react-toastify";
 
 function loadFacebookSDK(appId) {
   return new Promise((resolve) => {
@@ -28,14 +27,14 @@ function loadFacebookSDK(appId) {
   });
 }
 
-export default function Authentication({ wizard, setWizard , company_id}) {
-  const [loading, setLoading] = useState(true);   
+export default function Authentication({ wizard, setWizard, company_id, setConfiguration }) {
+  const [loading, setLoading] = useState(true);
   const isCloud = wizard.method === 'cloud';
   const signedIn = Boolean(wizard.cloud.tokenValid);
-  const [bspCred,setBspCred] = useState({
-    provider : 'twilio',
-    account_sid : null,
-    auth_token : null,
+  const [bspCred, setBspCred] = useState({
+    provider: 'twilio',
+    account_sid: null,
+    auth_token: null,
   });
 
   useEffect(() => {
@@ -62,10 +61,10 @@ export default function Authentication({ wizard, setWizard , company_id}) {
     setLoading(true);
     window.FB.login(
       (response) => {
-        console.log('response : ',response);
+        console.log('response : ', response);
         if (response.authResponse) {
           const { accessToken } = response.authResponse;
-          sendAccessToken(accessToken,company_id);
+          sendAccessToken(accessToken, company_id);
         } else {
           alert("Facebook login failed or permissions not granted.");
           setWizard(w => ({
@@ -82,7 +81,7 @@ export default function Authentication({ wizard, setWizard , company_id}) {
     );
   };
 
-  const sendAccessToken = async (accessToken,company_id) => {
+  const sendAccessToken = async (accessToken, company_id) => {
     const res = await fetchJson(`${API_BASE_URL}/whatsapp/authorize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -92,12 +91,11 @@ export default function Authentication({ wizard, setWizard , company_id}) {
       }),
     });
     setLoading(false);
-    let tokenValid = false;
     if (res?.flag === "S") {
       tokenValid = true;
     } else {
       tokenValid = false;
-      toast.error(`Error while updating item (${res.status})`);
+      toast.error(`${res.msg}`);
     }
     setWizard(w => ({
       ...w,
@@ -127,10 +125,15 @@ export default function Authentication({ wizard, setWizard , company_id}) {
       }),
     });
     setLoading(false);
-
     let tokenValid = false;
     if (res?.flag === "S") {
       tokenValid = true;
+      setConfiguration((w) => (
+        {
+          ...w,
+          config_json: bspCred
+        }
+      ))
     } else {
       tokenValid = false;
       toast.error(`${res.msg}`);
@@ -145,7 +148,7 @@ export default function Authentication({ wizard, setWizard , company_id}) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         company_id: company_id,
-        type:'twilio'
+        type: 'twilio'
       }),
     });
     setLoading(false);
@@ -235,13 +238,12 @@ export default function Authentication({ wizard, setWizard , company_id}) {
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div>
               <label className="text-xs text-slate-600">Provider</label>
-              {console.log(wizard.bsp)}
               <Select
                 disabled={true}
                 value={wizard.bsp.provider}
                 onChange={(e) => {
                   setWizard((w) => ({ ...w, bsp: { ...w.bsp, provider: e.target.value } }));
-                  setBspCred((b) => ({ ...b, provider : e.target.value }));
+                  setBspCred((b) => ({ ...b, provider: e.target.value }));
                 }}
                 options={[
                   { value: '360dialog', label: '360dialog' },
@@ -255,15 +257,15 @@ export default function Authentication({ wizard, setWizard , company_id}) {
               <>
                 <div>
                   <label className="text-xs text-slate-600">Account SID</label>
-                  <Input placeholder="ACxxxxxxxx" value={maskSensitive(wizard.bsp.account_sid) || ''} onChange={(e)=>{
+                  <Input placeholder="ACxxxxxxxx" value={maskSensitive(wizard.bsp.account_sid) || ''} onChange={(e) => {
                     setWizard((w) => ({ ...w, bsp: { ...w.bsp, account_sid: e.target.value } }));
-                    setBspCred((b) => ({ ...b, account_sid : e.target.value }));
+                    setBspCred((b) => ({ ...b, account_sid: e.target.value }));
                   }} />
                 </div>
                 <div>
                   <label className="text-xs text-slate-600">Auth Token</label>
-                  <Input type="xxxxxxxxxxxxxxxxxxxxxxx" placeholder="••••••••" value={maskSensitive(wizard.bsp.auth_token) || ''} onChange={(e) =>{ 
-                    setBspCred((b) => ({ ...b, auth_token : e.target.value }))
+                  <Input type="xxxxxxxxxxxxxxxxxxxxxxx" placeholder="••••••••" value={maskSensitive(wizard.bsp.auth_token) || ''} onChange={(e) => {
+                    setBspCred((b) => ({ ...b, auth_token: e.target.value }))
                     setWizard((w) => ({ ...w, bsp: { ...w.bsp, auth_token: e.target.value } }));
                   }} />
                 </div>
@@ -282,19 +284,19 @@ export default function Authentication({ wizard, setWizard , company_id}) {
             )}
 
             <div className="md:col-span-2">
-              { !wizard.bsp.validated ? (<Button
-                onClick={() => { verifyBSPCred()}}
+              {!wizard.bsp.validated ? (<Button
+                onClick={() => { verifyBSPCred() }}
                 className="rounded-lg bg-[#2E6FE7] text-white hover:bg-[#2a63cc]"
               >
                 Validate credentials
               </Button>) :
-               (
-                <div className="flex mt-4 rounded-lg items-center justify-center border w-50 border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
-                  <Check color="#07bc0c" size={24} />
-                  <span className="font-medium ml-1">{wizard.bsp.validated && 'Validated'}</span>
-                </div>
-              )
-            }
+                (
+                  <div className="flex mt-4 rounded-lg items-center justify-center border w-50 border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-600">
+                    <Check color="#07bc0c" size={24} />
+                    <span className="font-medium ml-1">{wizard.bsp.validated && 'Validated'}</span>
+                  </div>
+                )
+              }
             </div>
           </div>
         )}

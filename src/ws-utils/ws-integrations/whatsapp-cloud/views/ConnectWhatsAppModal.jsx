@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState , useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Button, Dialog } from '@components/index';
 import { API_BASE_URL, APP_ID } from "@config";
 import { fetchJson } from "@utils/fetchJson";
@@ -12,31 +12,32 @@ import Prerequisites from './wa-offical-steps/Prerequisites';
 import SelectNumber from './wa-offical-steps/SelectNumber';
 import AccessToken from './wa-offical-steps/AccessToken';
 
-export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnected ,company_id}) {
+export default function ConnectWhatsAppModal({ open, onClose, onDone, setIsConnected, company_id }) {
   const [integration_type, setIntegrationType] = useState('whatsapp');
   const isFirstRender = useRef(true);
-
-  // central wizard state shared across steps
   const [wizard, setWizard] = useState({
     method: /** @type {'cloud'|'bsp'|null} */ (null),
-    prerequisites:{
-      bsp_account:false,
-      key_and_token:false,
-      available_whatsapp_number:false,
-      facebook_sign_up : false,
-      facebook_business_exist : false,
-      waba_exist : false,
-      create_waba : false,
-      unregistered_phone_number : false,
-
-      // BSP
- 
+    prerequisites: {
+      bsp_account: false,
+      key_and_token: false,
+      available_whatsapp_number: false,
+      facebook_sign_up: false,
+      facebook_business_exist: false,
+      waba_exist: false,
+      create_waba: false,
+      unregistered_phone_number: false,
     },
     cloud: { tokenValid: false },  // cloud-only
     bsp: { validated: false, provider: 'twilio' },             // bsp-only
     numberId: ''                                       // common
   });
-  console.log('wiz : ',wizard);
+  const [configuration, setConfiguration] = useState({
+    'provider': null,
+    'config_json': {},
+    'is_default': 'N',
+    'status': 'inactive',
+  });
+  console.log(configuration);
   
   const [loading, setLoading] = useState(true);
   const [currentId, setCurrentId] = useState(1);
@@ -48,7 +49,7 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnec
   ];
   const completed = [
     { id: 1, label: 'Choose Method', isValid: wizard.method === 'cloud' || wizard.method === 'bsp', data: wizard.method === 'cloud' ? 'cloud' : 'bsp' },
-    { id: 2, label: 'Prerequisites', isValid: wizard.method == 'cloud' ? (wizard.prerequisites.facebook_sign_up && wizard.prerequisites.facebook_business_exist && wizard.prerequisites.waba_exist && wizard.prerequisites.unregistered_phone_number) : (wizard.prerequisites.bsp_account && wizard.prerequisites.key_and_token && wizard.prerequisites.available_whatsapp_number) , data: "NA" },
+    { id: 2, label: 'Prerequisites', isValid: wizard.method == 'cloud' ? (wizard.prerequisites.facebook_sign_up && wizard.prerequisites.facebook_business_exist && wizard.prerequisites.waba_exist && wizard.prerequisites.unregistered_phone_number) : (wizard.prerequisites.bsp_account && wizard.prerequisites.key_and_token && wizard.prerequisites.available_whatsapp_number), data: "NA" },
     { id: 3, label: 'Authentication', isValid: wizard.method === 'cloud' ? !!(wizard.cloud.tokenValid) : !!wizard.bsp.validated, data: "NA" },
     { id: 4, label: 'Select Number', isValid: !!wizard.numberId, data: wizard.numberId },
   ];
@@ -59,7 +60,7 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnec
   const currentIndex = Math.max(0, visibleSteps.findIndex((s) => s.id === currentId));
   const currentStep = visibleSteps[currentIndex] || visibleSteps[0];
   const canContinue = currentStep?.isValid?.(wizard) ?? false;
-  
+
   const isLast = currentIndex === visibleSteps.length - 1;
   const Raw = currentStep?.component;
   const StepComp = Raw && (Raw.default || Raw);
@@ -72,8 +73,9 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnec
 
   useEffect(() => {
     getSteps();
+    insertIntegration()
   }, []);
-  
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false; // skip first render
@@ -89,12 +91,13 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnec
 
   const gotoNext = () => {
     if (!canContinue) return;
+    saveIntegrationSettings(isLast);
     if (isLast) { onDone?.(wizard); setIsConnected(true); return; }
     setCurrentId(visibleSteps[currentIndex + 1].id);
     saveStep();
   };
 
-  const getSteps= async () => {
+  const getSteps = async () => {
     setLoading(true);
     const res = await fetchJson(`${API_BASE_URL}/getSteps`, {
       method: 'POST',
@@ -105,14 +108,46 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnec
       }),
     });
     setLoading(false);
+
     if (res?.flag === "S") {
-      const steps_data = JSON.parse(res.data.steps);
-      const wiz = JSON.parse(res.data.wizard);
-      setWizard(wiz);
+      const steps_data = JSON.parse(res.data.steps || "[]");
+      const wiz = JSON.parse(res.data.wizard || "{}");
+
+      // ✅ Merge with defaults to avoid undefined keys
+      const defaultWizard = {
+        method: null,
+        prerequisites: {
+          bsp_account: false,
+          key_and_token: false,
+          available_whatsapp_number: false,
+          facebook_sign_up: false,
+          facebook_business_exist: false,
+          waba_exist: false,
+          create_waba: false,
+          unregistered_phone_number: false,
+        },
+        cloud: { tokenValid: false },
+        bsp: { validated: false, provider: 'twilio' },
+        numberId: ''
+      };
+
+      const mergedWizard = { ...defaultWizard, ...wiz, prerequisites: { ...defaultWizard.prerequisites, ...(wiz.prerequisites || {}) } };
+
+      setWizard(mergedWizard);
+
+      const settings = res.data.configuration ?? {};
       for (const step of steps_data) {
         if (step.isValid) {
           setCurrentId(step.id + 1);
         }
+      }
+      if (settings) {
+        setConfiguration({
+          provider: settings.provider || null,
+          config_json: settings.config_json ? JSON.parse(settings.config_json) : {},
+          is_default: settings.is_default || 'N',
+          status: settings.status || 'inactive',
+        });
       }
     }
   };
@@ -131,6 +166,42 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnec
         status: isLast ? 'completed' : 'in_completed',
         steps: JSON.stringify(completed),
         wizard: JSON.stringify(wizard)
+      }),
+    });
+    setLoading(false);
+    if (res?.flag === "S") {
+    } else {
+      toast.error(`${res.msg})`);
+    }
+  };
+  const saveIntegrationSettings = async (isLast) => {
+    setLoading(true);
+    console.log('configuration: ', configuration);
+
+    const res = await fetchJson(`${API_BASE_URL}/integration/saveWAIntegrationSettings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...configuration,
+        company_id: company_id,
+        config_json: JSON.stringify(configuration.config_json),
+        status: isLast ? 'active' : 'inactive'
+      }),
+    });
+    setLoading(false);
+    if (res?.flag === "S") {
+    } else {
+      toast.error(`${res.msg})`);
+    }
+  };
+  const insertIntegration = async () => {
+    setLoading(true);
+    const res = await fetchJson(`${API_BASE_URL}/integration/saveIntegration`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        company_id: company_id,
+        type: 'whatsapp',
       }),
     });
     setLoading(false);
@@ -194,9 +265,9 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone,setIsConnec
 
           {/* Body (scrollable) */}
           <div className="flex-1 overflow-y-auto px-6 py-5">
-         
+
             {typeof StepComp === 'function' ? (
-              <StepComp wizard={wizard} setWizard={setWizard} saveStep={saveStep} company_id={company_id} setIntegrationType={setIntegrationType} />
+              <StepComp wizard={wizard} setWizard={setWizard} saveStep={saveStep} company_id={company_id} setIntegrationType={setIntegrationType} setConfiguration={setConfiguration} />
             ) : (
               <div className="text-sm text-red-600">
                 Step component failed to load. Ensure it has a default export.

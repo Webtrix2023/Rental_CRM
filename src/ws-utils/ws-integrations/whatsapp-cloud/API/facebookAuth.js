@@ -24,7 +24,7 @@ export const loadFacebookSDK = () => {
     });
 }
 
-export const sendAccessToken = async (accessToken,company_id) => {
+export const sendAccessToken = async (accessToken,company_id,setConfiguration) => {
     console.log('company_id : ',company_id);
     
     if(!company_id) return;
@@ -36,7 +36,13 @@ export const sendAccessToken = async (accessToken,company_id) => {
             body: JSON.stringify({ company_id: company_id, access_token: accessToken }),
         });
         if (res?.flag !== "S") toast.error(`${res.msg}`);
+        setConfiguration(c => ({
+            ...c,
+            config_json : res.data ? JSON.parse(res.data) : {}
+        }));
+        
         return res?.flag === "S";
+
     } catch (e) {
         toast.error("Network error while sending access token.");
         return false;

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-
+import { createContext } from "react";
 import { Button, Tabs } from '@components/index';
 import ConnectWhatsAppModal from '../views/ConnectWhatsAppModal';
 import WhatsAppTrialNumberModal from './WhatsAppTrialNumberModal';
@@ -10,8 +10,7 @@ import Cookies from 'js-cookie';
 
 export default function WhatsAppBusinessOverview({company_id}) {
   const [tab, setTab] = useState('overview');  
-  const [loading, setLoading] = useState(true);
-  const [isconnected, setIsConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
     connectedNumbers: 0,
     activeTemplates: 0,
@@ -27,33 +26,6 @@ export default function WhatsAppBusinessOverview({company_id}) {
     { key: 'test', label: 'Test' },
     { key: 'logs', label: 'Logs' },
   ];
-
-  useEffect(() => {
-    isConnected();
-  }, [])
-  
-
-  const isConnected= async () => {
-    setLoading(true);
-    const res = await fetchJson(`${API_BASE_URL}/whatsapp/isConnected`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        company_id: company_id,
-        integration_type: 'whatsapp',
-      }),
-    });
-    setLoading(false);
-    if (res?.flag === "S") {
-      setIsConnected(res.data.isConnected);
-      setStats((prev) => ({
-        ...prev,
-        connectedNumbers: res.data.totalNumbers
-      }));
-
-    }
-  };
-
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Sticky header */}
@@ -66,7 +38,7 @@ export default function WhatsAppBusinessOverview({company_id}) {
               <div>
                 <div className="text-[20px] font-semibold text-slate-900 leading-tight">WhatsApp Business</div>
                 <div className="mt-3 flex items-center gap-2 text-xs">
-                  <StatusPill status={isconnected ? "connected" : 'pending'} />
+                  {/* <StatusPill status={isconnected ? "connected" : 'pending'} /> */}
                   {/* <span className="text-slate-500">Last event: Today 12:45 PM IST</span> */}
                 </div>
               </div>
@@ -81,7 +53,7 @@ export default function WhatsAppBusinessOverview({company_id}) {
 
       {/* Body */}
       <div className="mx-auto max-w-7xl mt-8 px-4 py-6">
-        {tab === 'overview' && <OverviewPanel company_id={company_id} stats={stats} isconnected={isconnected} setIsConnected={setIsConnected} loading={loading} />}
+        {tab === 'overview' && <OverviewPanel company_id={company_id} stats={stats}  loading={loading} />}
         {!loading && tab !== 'overview' && (
           <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
             The <span className="font-medium capitalize">{tab}</span> screen will appear here. Hook this tab to your route or wizard.
@@ -91,9 +63,7 @@ export default function WhatsAppBusinessOverview({company_id}) {
     </div>
   );
 }
-
-
-function OverviewPanel({ stats , isconnected,setIsConnected, loading , company_id}) {
+function OverviewPanel({ stats ,loading , company_id}) {
   const [openConnect, setOpenConnect] = useState(false);
   const [trialOpen, setTrialOpen] = React.useState(false);
   const handleContinue = (method) => {
@@ -146,14 +116,13 @@ function OverviewPanel({ stats , isconnected,setIsConnected, loading , company_i
                   </div>
                 )}
                 {!loading && 
-                  <Button className={`h-11 w-full rounded-lg flex items-center justify-center`}  variant={isconnected ? 'secondary' : 'primary'} disabled={isconnected} onClick={() => setOpenConnect(true)}>
+                  <Button className={`h-11 w-full rounded-lg flex items-center justify-center`}  onClick={() => setOpenConnect(true)}>
                     Connect Your Number
                   </Button>
                 } 
                 <ConnectWhatsAppModal
                   open={openConnect}
                   company_id={company_id}
-                  setIsConnected={setIsConnected}
                   onClose={() => setOpenConnect(false)}
                   onDone={(state) => {
                     setOpenConnect(false);
