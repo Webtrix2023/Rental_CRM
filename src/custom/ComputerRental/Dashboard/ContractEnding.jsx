@@ -17,7 +17,7 @@ function ContractEnding() {
     useEffect(() => {
         setLoading(true);
         async function fetchData() {
-            const res = await fetchJson(`${API_BASE_URL}contract_ending_assets`, {
+            const res = await fetchJson(`${API_BASE_URL}/contract_ending_assets`, {
                 method: 'POST',
                 body: JSON.stringify(filters)
             });
