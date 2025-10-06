@@ -38,6 +38,14 @@ export default function Authentication({ wizard, setWizard, company_id, setConfi
   });
 
   useEffect(() => {
+     if (!APP_ID) {
+        const errorMsg = "Facebook App ID is missing in configuration (@config). Cannot initialize SDK.";
+        toast.error(errorMsg);
+        console.error(errorMsg);
+        // Reject the promise if configuration is missing
+        reject(new Error(errorMsg)); 
+        return;
+    }
     if (isCloud) {
       loadFacebookSDK(APP_ID).then(() => {
         setLoading(false);

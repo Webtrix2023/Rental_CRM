@@ -10,57 +10,84 @@ const ChooseMethod = ({ wizard, setWizard, setConfiguration }) => {
     const select = (m) => setWizard((w) => ({ ...w, method: m }));
     const selected = wizard.method;
     const [settings, setSettings] = useState([]);
-
-    useEffect(() => {
-        const fetchWhatsAppSettings = async () => {
-            try {
-                const res = await fetchJson(`${API_BASE_URL}/integration/getWASettings`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ company_id: 1 }),
-                });
-                if (res?.flag === "S") {
-                    setSettings(res.data);
-                } else {
-                    toast.error(res.msg || "Failed to fetch Settings");
-                }
-            } catch (err) {
-                console.log(err);
-                toast.error("Error fetching settings");
-            }
-        };
-        fetchWhatsAppSettings();
-    }, []);
+    const [defaultProvider, setDefaultProvider] = useState(null);
 
     const isActive = (provider) => settings.some(s => s.provider === provider && s.status === 'active');
     const isDefault = (provider) => settings.some(s => s.provider === provider && s.is_default === 'Y');
-
-    const setSelectedConfig = (provider)=>{
-         if (isActive(provider)) {
+    const getSettingByProvider = (provider) => settings.find(s => s.provider === provider);
+    const updateDefault = async () => {
+        try {
+            const res = await fetchJson(`${API_BASE_URL}/integration/setDefaultWAProvider`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ company_id: 1, provider: defaultProvider }),
+            });
+            if (res?.flag === "S") {
+                toast.success("Default provider updated!");
+            } else {
+                toast.error(res.msg || "Failed to update default provider");
+            }
+        } catch (err) {
+            console.log(err);
+            toast.error("Error updating default provider");
+        }
+    };
+    const fetchWhatsAppSettings = async () => {
+        try {
+            const res = await fetchJson(`${API_BASE_URL}/integration/getWASettings`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ company_id: 1 }),
+            });
+            if (res?.flag === "S") {
+                setSettings(res.data);
+            } else {
+                toast.error(res.msg || "Failed to fetch Settings");
+            }
+        } catch (err) {
+            console.log(err);
+            toast.error("Error fetching settings");
+        }
+    };
+    const setSelectedConfig = (provider) => {
+        if (isActive(provider)) {
             const settings = getSettingByProvider(provider);
             if (settings) {
                 setConfiguration(
                     {
-                        'provider' : settings.provider || null,
-                        'config_json' : settings.config_json ? JSON.parse(settings.config_json) : {},
-                        'is_default' : settings.is_default || 'N',
-                        'status' : settings.status || 'inactive',
+                        'provider': settings.provider || null,
+                        'config_json': settings.config_json ? JSON.parse(settings.config_json) : {},
+                        'is_default': settings.is_default || 'N',
+                        'status': settings.status || 'inactive',
                     }
                 );
             }
             console.log(settings);
-        }else{
+        } else {
             setConfiguration(
                 {
-                    'provider' : provider,
-                    'config_json' : {},
-                    'is_default' : 'N',
-                    'status' : 'inactive',
+                    'provider': provider,
+                    'config_json': {},
+                    'is_default': 'N',
+                    'status': 'inactive',
                 }
             );
         }
     }
-    const getSettingByProvider = (provider) => settings.find(s => s.provider === provider);
+
+    useEffect(() => {
+        fetchWhatsAppSettings();
+    }, []);
+
+    useEffect(() => {
+        if (!defaultProvider) return;
+        const updateDefaultProvider = async () => {
+            await updateDefault();
+            fetchWhatsAppSettings(); // refresh settings after update
+        };
+        updateDefaultProvider();
+    }, [defaultProvider]);
+
     return (
         <div>
             <p className="text-sm text-slate-600">Select how you want to connect your WhatsApp number</p>
@@ -68,24 +95,25 @@ const ChooseMethod = ({ wizard, setWizard, setConfiguration }) => {
                 <MethodCard
                     selected={!isActive('meta') && selected === 'cloud'}
                     onSelect={() => {
-                            select('cloud');
-                            setSelectedConfig('meta');
-                        }
+                        select('cloud');
+                        setSelectedConfig('meta');
+                    }
                     }
                     disabled={isActive('meta')}
-                    title={<>Meta <br className="hidden md:block" /> WhatsApp <br className="hidden md:block" /> Cloud API</>}
+                    title={<>Meta <br className="hidden md:block" /> WhatsApp Cloud API</>}
                     badge="Recommended"
                     bullets={['Free tier available', 'Full control over templates', 'Direct from Meta']}
                     meta={[{ k: 'Ownership:', v: 'You own WABA' }, { k: 'Billing:', v: 'Direct to Meta' }, { k: 'Setup:', v: 'Medium', vClass: 'text-amber-600' }]}
                     isDefault={isDefault('meta')}
                     isConnected={isActive('meta')}
+                    onSetDefault={() => setDefaultProvider('meta')}
                 />
                 <MethodCard
-                    selected={!isActive('twilio') &&selected === 'bsp'}
-                    onSelect={() =>{
-                            select('bsp')
-                            setSelectedConfig('twilio');
-                        }
+                    selected={!isActive('twilio') && selected === 'bsp'}
+                    onSelect={() => {
+                        select('bsp')
+                        setSelectedConfig('twilio');
+                    }
                     }
                     disabled={isActive('twilio')}
                     title="Twilio"
@@ -94,6 +122,7 @@ const ChooseMethod = ({ wizard, setWizard, setConfiguration }) => {
                     meta={[{ k: 'Ownership:', v: 'Provider owns' }, { k: 'Billing:', v: 'Through provider' }, { k: 'Setup:', v: 'Easy', vClass: 'text-emerald-600' }]}
                     isDefault={isDefault('twilio')}
                     isConnected={isActive('twilio')}
+                    onSetDefault={() => setDefaultProvider('twilio')}
                 />
             </div>
         </div>
@@ -101,23 +130,41 @@ const ChooseMethod = ({ wizard, setWizard, setConfiguration }) => {
 };
 
 
-function MethodCard({ selected, onSelect, title, subtitle, bullets, badge, meta, isDefault, onSetDefault, isConnected ,disabled}) {
+function MethodCard({ selected, onSelect, title, subtitle, bullets, badge, meta, isDefault, onSetDefault, isConnected, disabled }) {
     return (
         <button
-            disabled = {disabled}
+            disabled={disabled}
             type="button"
             onClick={() => onSelect()}
             className={`h-full w-full rounded-2xl border p-4 text-left transition
                 ${selected ? 'border-[#2E6FE7] ring-2 ring-[#2E6FE7]/30' : 'border-slate-200 hover:border-slate-300'}`}
-            >
+        >
             <div className="flex items-start justify-between">
-                <div>
-                    <div className="text-lg font-semibold text-[#0B3B69]">{title}</div>
+                <div className='flex-1'>
+                    <div className="text-lg font-semibold text-[#0B3B69] w-full">{title}</div>
                     {subtitle && <div className="text-sm text-slate-600">{subtitle}</div>}
                 </div>
-                {isConnected && 
-                    (<span className={`inline-flex text-xs items-center  px-3 py-1 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-600 border border-emerald-400`}>Connected</span>)
-                }
+                <div className="flex items-center gap-2">
+                    {/* Default Checkbox */}
+                    {!isDefault && <label className="flex items-center gap-1 text-sm font-medium text-slate-700 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            onClick={onSetDefault}
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                        />
+                        Make Default
+                    </label>}
+                    {isDefault && (
+                        <span className="inline-flex text-xs items-center px-3 py-1 rounded-xl text-sm font-medium bg-blue-50 text-blue-600 border border-blue-400">
+                            Default
+                        </span>
+                    )}
+                    {isConnected && (
+                        <span className="inline-flex text-xs items-center px-3 py-1 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-600 border border-emerald-400">
+                            Connected
+                        </span>
+                    )}
+                </div>
             </div>
 
             <ul className="mt-4 space-y-2">
