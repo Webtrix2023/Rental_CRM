@@ -354,7 +354,7 @@ export default function ProductInvocing() {
           } else {
             swalObj.fire(
               "Failed!",
-              `Error while creating invoice ! ${res.status}`,
+              `${res.msg}`,
               "error"
             );
           }

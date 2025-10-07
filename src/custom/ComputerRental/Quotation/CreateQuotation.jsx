@@ -285,11 +285,11 @@ useEffect(() => {
     });
 
     if (res?.flag === "S") {
-      const mesg = type === 'draft' ? 'Delviery Challan saved as draft' : 'Delviery Challan Created'; // set logic as needed
+      const mesg = type === 'draft' ? 'Quotation saved as draft' : 'Quotation Challan Created'; // set logic as needed
       toast.success(mesg);
       navigate("/quotations");
     } else {
-      toast.error(`Error while creating invoice. (${res.msg})`);
+      toast.error(`Error while creating quotation. (${res.msg})`);
     }
 
   };
