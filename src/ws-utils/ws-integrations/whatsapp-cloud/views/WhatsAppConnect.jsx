@@ -1,35 +1,47 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createContext } from "react";
-import { Button, Tabs } from '@components/index';
+import { Button } from '@components/index';
 import ConnectWhatsAppModal from '../views/ConnectWhatsAppModal';
 import WhatsAppTrialNumberModal from './WhatsAppTrialNumberModal';
+import Templates from '../views/tabs-contents/Templates';
+import Test from '../views/tabs-contents/Test';
 import { fetchJson } from "@utils/fetchJson";
 import { API_BASE_URL, APP_ID } from "@config";
 import Cookies from 'js-cookie';
+import {Tabs, TabsList, TabsTrigger, TabsContent} from '@components/ui/tabs';
+import { elements } from 'chart.js';
 
 
 export default function WhatsAppBusinessOverview({company_id}) {
-  const [tab, setTab] = useState('overview');  
+  const [tab, setTab] = useState('test');  
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
     connectedNumbers: 0,
     activeTemplates: 0,
     messagesToday: 0,
   });
-
+  const TextTabContent = ({tab})=>{
+    return (
+          <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
+            The <span className="font-medium capitalize">{tab}</span> screen will appear here. Hook this tab to your route or wizard.
+          </div>
+        )
+  }
   const tabs = [
-    { key: 'overview', label: 'Overview' },
-    { key: 'connect', label: 'Connect' },
-    { key: 'numbers', label: 'Numbers' },
-    { key: 'templates', label: 'Templates' },
-    { key: 'settings', label: 'Settings' },
-    { key: 'test', label: 'Test' },
-    { key: 'logs', label: 'Logs' },
+    { key: 'overview', label: 'Overview' , element:(<OverviewPanel company_id={company_id} stats={stats}  loading={loading} />)},
+    // { key: 'connect', label: 'Connect' ,element : (<TextTabContent tab={tab} />)},
+    // { key: 'numbers', label: 'Numbers' ,element : (<TextTabContent tab={tab} />)},
+    { key: 'templates', label: 'Templates' , element:(<Templates company_id={company_id} loading={loading}/>) },
+    { key: 'settings', label: 'Settings' , element : (<TextTabContent tab={tab} />) },
+    { key: 'test', label: 'Test' ,element : (<Test company_id={company_id} loading={loading} tab={tab} />) },
+    // { key: 'logs', label: 'Logs',element : (<TextTabContent tab={tab} />) },
   ];
+  const getTabContent = (tmp_tab) => tabs.find(t => t.key === tmp_tab);
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Sticky header */}
-      <div className="sticky top-[44px] z-30 border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <div className="sticky top-[44px] z-30  bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="mx-auto max-w-7xl px-4 py-3">
           {/* Title Row */}
           <div className="flex items-center justify-between">
@@ -46,19 +58,41 @@ export default function WhatsAppBusinessOverview({company_id}) {
           </div>
           {/* Tabs */}
           <div className="mt-4">
-            <Tabs value={tab} onChange={setTab} items={tabs} />
+            <div className="sticky top-0 z-10 border-b border-b-gray-300 bg-white">
+              <div className="mx-auto max-w-7xl px-4 pl-0 sm:px-6 sm:pl-0 lg:px-8 lg:pl-0">
+                <nav className="flex justify-left items-center gap-2 pt-3">
+                  {tabs.map((item) => (
+                    <div key={item.key} className="relative group">
+                      <button
+                        onClick={() => setTab(item.key)}
+                        className={`relative inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition border-b-2 ${
+                          tab === item.key
+                            ? "border-orange-600 text-orange-600"
+                            : "border-transparent text-gray-700 hover:text-gray-900"
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    </div>
+                  ))}
+                </nav>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
       {/* Body */}
-      <div className="mx-auto max-w-7xl mt-8 px-4 py-6">
-        {tab === 'overview' && <OverviewPanel company_id={company_id} stats={stats}  loading={loading} />}
+      <div className="mx-auto max-w-7xl mt-12 px-4 py-6">
+        {console.log(getTabContent(tab))}
+        {getTabContent(tab)?.element || TextTabContent(tab)}
+        {/* {tab === 'overview' && <OverviewPanel company_id={company_id} stats={stats}  loading={loading} />}
+        {tab && tab <OverviewPanel company_id={company_id} stats={stats}  loading={loading} />}
+
         {!loading && tab !== 'overview' && (
           <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
             The <span className="font-medium capitalize">{tab}</span> screen will appear here. Hook this tab to your route or wizard.
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

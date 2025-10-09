@@ -12,7 +12,7 @@ import Prerequisites from './wa-offical-steps/Prerequisites';
 import SelectNumber from './wa-offical-steps/SelectNumber';
 import AccessToken from './wa-offical-steps/AccessToken';
 
-export default function ConnectWhatsAppModal({ open, onClose, onDone, setIsConnected, company_id }) {
+export default function ConnectWhatsAppModal({ open, onClose, onDone, company_id }) {
   const [integration_type, setIntegrationType] = useState('whatsapp');
   const isFirstRender = useRef(true);
   const [wizard, setWizard] = useState({
@@ -92,7 +92,7 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone, setIsConne
   const gotoNext = () => {
     if (!canContinue) return;
     saveIntegrationSettings(isLast);
-    if (isLast) { onDone?.(wizard); setIsConnected(true); return; }
+    if (isLast) { onDone?.(wizard);return; }
     setCurrentId(visibleSteps[currentIndex + 1].id);
     saveStep();
   };
@@ -178,7 +178,7 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone, setIsConne
     setLoading(true);
     console.log('configuration: ', configuration);
 
-    const res = await fetchJson(`${API_BASE_URL}/integration/saveWAIntegrationSettings`, {
+    const res = await fetchJson(`${API_BASE_URL}/integration/saveIntegration`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
