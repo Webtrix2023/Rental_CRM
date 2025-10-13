@@ -4,6 +4,8 @@ import { Check } from "lucide-react";
 import { API_BASE_URL, APP_ID } from "@config";
 import Cookies from 'js-cookie';
 import { fetchJson } from "@utils/fetchJson";
+import { toast } from "react-toastify";
+
 
 function loadFacebookSDK(appId) {
   return new Promise((resolve) => {
@@ -43,7 +45,7 @@ export default function Authentication({ wizard, setWizard, company_id, setConfi
         toast.error(errorMsg);
         console.error(errorMsg);
         // Reject the promise if configuration is missing
-        reject(new Error(errorMsg)); 
+        // reject(new Error(errorMsg)); 
         return;
     }
     if (isCloud) {
@@ -99,6 +101,7 @@ export default function Authentication({ wizard, setWizard, company_id, setConfi
       }),
     });
     setLoading(false);
+    const tokenValid = false;
     if (res?.flag === "S") {
       tokenValid = true;
     } else {
@@ -160,6 +163,7 @@ export default function Authentication({ wizard, setWizard, company_id, setConfi
       }),
     });
     setLoading(false);
+    let tokenValid = false;
     if (res?.flag === "S") {
       tokenValid = true;
     } else {

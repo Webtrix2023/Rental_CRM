@@ -178,7 +178,7 @@ export default function ConnectWhatsAppModal({ open, onClose, onDone, company_id
     setLoading(true);
     console.log('configuration: ', configuration);
 
-    const res = await fetchJson(`${API_BASE_URL}/integration/saveIntegration`, {
+    const res = await fetchJson(`${API_BASE_URL}/integration/saveWAIntegrationSettings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -83,7 +83,6 @@ export default function WhatsAppBusinessOverview({company_id}) {
       </div>
       {/* Body */}
       <div className="mx-auto max-w-7xl mt-12 px-4 py-6">
-        {console.log(getTabContent(tab))}
         {getTabContent(tab)?.element || TextTabContent(tab)}
         {/* {tab === 'overview' && <OverviewPanel company_id={company_id} stats={stats}  loading={loading} />}
         {tab && tab <OverviewPanel company_id={company_id} stats={stats}  loading={loading} />}
