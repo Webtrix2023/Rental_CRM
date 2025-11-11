@@ -12,6 +12,7 @@ import { useModuleMetaData } from '@utils/useModuleMetaData';
 
 import TableSkeleton from '@components/form-elements/TableSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { canUser } from '@utils/usePermission';
 
 const CustomerListView = () => {
   const menuId = useMatchedMenu('deliveries');
@@ -49,9 +50,12 @@ const handleDelete =async (rowData) => {
 const renderRowActions = ({ row, rowKey }) => (
   <div className="sticky min-w-[28px] w-full right-0 z-10 bg-white border-l text-right p-2 group-hover:bg-gray-50 transition-colors">
     <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-in bg-white shadow rounded p-1 flex gap-2 z-10">
+      {canUser("deliveries", "edit") && (
       <button onClick={() => handleEdit({ record_id: row[rowKey] })} className="text-blue-500 hover:text-blue-700 p-1">
         <Pencil size={16} />
       </button>
+      )}
+      {canUser("deliveries", "download") && (
       <button  onClick={(e) => {
     e.stopPropagation();
     // Example: Replace with your actual URL
@@ -60,7 +64,8 @@ const renderRowActions = ({ row, rowKey }) => (
   }} className="text-blue-500 hover:text-blue-700 p-1">
         <Download size={16} />
       </button>
-      {row.status !== "approved" && (
+      )}
+      {canUser("deliveries", "download") && row.status !== "approved" && (
       <button title="Delete" onClick={(e) =>{  e.stopPropagation(); handleDelete(row);}} className="text-red-500 hover:text-red-700 p-1">
         <Trash2 size={16} />
       </button>
@@ -129,10 +134,12 @@ useEffect(() => {
       <div className='flex justify-between items-center mb-4'>
         <h1 className="text-xl font-regular mb-4">{moduleData?.menuName}&nbsp;<small className='text-gray-500 text-xs'>{moduleData?.module_desc}</small></h1>
         <div className="flex gap-2">
+           {canUser("deliveries", "add") && (
           <button onClick={() =>{
             navigate("/delivery/create");
             } }
             className='p-1.5 pl-3 pr-3 bg-primary text-white rounded flex items-center'> <Plus className="inline mr-2" size={16} />Create</button>
+            )}
         </div>
       </div>
       {metadata?.[0] && definitions?.length ? (
@@ -186,12 +193,18 @@ useEffect(() => {
         bulkeditfields={["start_date", "due_date",]}
         skipFields={skipFields}
         columnMappings={columnLabels}
-        bulkActions={['active','inactive','delete']}
+        //bulkActions={['active','inactive','delete']}
+        bulkActions={[
+                   ...(canUser('deliveries', 'active') ? ['active'] : []),
+                   ...(canUser('deliveries', 'inactive') ? ['inactive'] : []),
+                  ...(canUser('deliveries', 'delete') ? ['delete'] : [])
+                ]}
         bulkStatusAPI={`${API_BASE_URL}/multipledeliveryChangeStatus`}
         handleRefresh={refreshFilterList}
         handleEdit={handleEdit}
         //isRowSelectable={row => row.is_sys_category === 'no'}
-        rowEdit={true}
+        //rowEdit={true}
+        rowEdit={canUser("deliveries", "edit")}
         columnRenderers={{
         is_replacement: (row) => (
           <div className="">

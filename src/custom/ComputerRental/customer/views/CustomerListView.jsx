@@ -1,6 +1,6 @@
 import {React,useState,useEffect,useRef} from 'react';
 import DynamicTable from '@components/dynamicTables/dynamicTable';
-import { API_BASE_URL } from '@config';
+import { API_BASE_URL } from '../../../../config';
 import DynamicFilter from '@components/filter/DynamicFilter';
 import { fetchJson, useMatchedMenu } from '@utils/fetchJson';
 import { getModuleMetaData } from '@utils/api';
@@ -13,6 +13,7 @@ import { useCustomerCreateStore } from '../store/useCustomerCreateStore';
 import { useEmailCreateStore } from '@plugin/mail/store/useMailStore';
 import TableSkeleton from '@components/form-elements/TableSkeleton';
 import { useNavigate } from 'react-router-dom';
+import { canUser } from '@utils/usePermission';
 
 const CustomerListView = () => {
   const menuId = useMatchedMenu('customer');
@@ -55,15 +56,21 @@ const handleDelete =async (rowData) => {
 const renderRowActions = ({ row, rowKey }) => (
   <div className="sticky min-w-[28px] w-full right-0 z-10 bg-white border-l text-right p-2 group-hover:bg-gray-50 transition-colors">
     <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-in bg-white shadow rounded p-1 flex gap-2 z-10">
+     {canUser("customer", "edit") && (
       <button onClick={() => handleEdit({ record_id: row[rowKey] })} className="text-blue-500 hover:text-blue-700 p-1">
         <Pencil size={16} />
       </button>
+     )}
+     {canUser("customer-report", "view") && (
       <button title="Customer Rental Report" onClick={(e) =>{  e.stopPropagation(); navigate(`/customer-report/${row[rowKey]}`)}} className="text-blue-500 hover:text-blue-700 p-1">
         <History size={16} />
       </button>
+      )}
+      {canUser("customer", "delete") && (
       <button title="Delete" onClick={(e) =>{  e.stopPropagation(); handleDelete(row);}} className="text-red-500 hover:text-red-700 p-1">
         <Trash2 size={16} />
       </button>
+      )}
     </div>
   </div>
 );
@@ -128,6 +135,7 @@ useEffect(() => {
       <div className='flex justify-between items-center mb-4'>
         <h1 className="text-xl font-regular mb-4">{moduleData?.menuName}&nbsp;<small className='text-gray-500 text-xs'>{moduleData?.module_desc}</small></h1>
         <div className="flex gap-2">
+          {canUser("customer", "add") && (
           <button onClick={() =>{
             // setShowForm(true)
              openCustomerCreate({},(result) => {
@@ -135,6 +143,7 @@ useEffect(() => {
   });
             } }
             className='p-1.5 pl-3 pr-3 bg-primary text-white rounded flex items-center'> <Plus className="inline mr-2" size={16} />Create</button>
+          )}
         </div>
       </div>
       {metadata?.[0] && definitions?.length ? (
@@ -188,12 +197,18 @@ useEffect(() => {
         bulkeditfields={["start_date", "due_date",]}
         skipFields={skipFields}
         columnMappings={columnLabels}
-        bulkActions={['active','inactive','delete']}
+        //bulkActions={['active','inactive','delete']}
+        bulkActions={[
+                   ...(canUser('customer', 'active') ? ['active'] : []),
+                   ...(canUser('customer', 'inactive') ? ['inactive'] : []),
+                  ...(canUser('customer', 'delete') ? ['delete'] : [])
+                ]}
         bulkStatusAPI={`${API_BASE_URL}/customerMaster/delete`}
         handleRefresh={refreshFilterList}
         handleEdit={handleEdit}
         //isRowSelectable={row => row.is_sys_category === 'no'}
-        rowEdit={true}
+        //rowEdit={true}
+        rowEdit={canUser("customer", "edit")}
         columnRenderers={{
         cat_color: (row) => (
           <div className="flex gap-1 items-center">

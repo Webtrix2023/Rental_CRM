@@ -18,6 +18,7 @@ import { toast } from 'react-toastify';
 import FormSkeleton from '@components/form-elements/FormSkeleton';
 import ContactListEditor from './ContactListEditor';
 import { ControlledPhoneInput } from "@components/index";
+import PermissionGuard from '@utils/PermissionGuard';
 const CreateCustomer = ({ onClose, onSave }) => {
   // This is used to get menuid from the module name /link
   const menuId = useMatchedMenu('customer');
@@ -144,7 +145,9 @@ const updateData = (updater) => {
   if (!isOpen) return null;
   const loading = payload?.record_id && !initialData;
   return (
-    <> {loading ? (
+    
+    <PermissionGuard module="customer" action={payload?.record_id ? "edit" : "add"} isFlyout={true} onClose={close}>
+    {loading ? (
       <div className='modal-panel size-lg fixed top-[50px] right-0 h-[calc(100vh-56px)] bg-white shadow-lg z-50 flex flex-col w-screen max-w-full md:w-full md:w-[700px]'>
       <FormSkeleton /> </div>
     ) : (
@@ -172,7 +175,7 @@ const updateData = (updater) => {
       customModules={(customeModules ? customeModules : {})}
     />
     )}
-  </>
+  </PermissionGuard>
   
   );
 };

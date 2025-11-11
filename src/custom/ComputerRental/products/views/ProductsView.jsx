@@ -1,6 +1,6 @@
 import {React,useState,useEffect,useRef} from 'react';
 import DynamicTable from '@components/dynamicTables/dynamicTable';
-import { API_BASE_URL } from '@config';
+import { API_BASE_URL } from '../../../../config';
 import DynamicFilter from '@components/filter/DynamicFilter';
 import { fetchJson, useMatchedMenu } from '@utils/fetchJson';
 import { getModuleMetaData } from '@utils/api';
@@ -15,6 +15,7 @@ import { getPlainTextFromHtml } from '@utils/getPlainTextFromHtml';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { canUser } from '@utils/usePermission';
 const ProductsView = () => {
   const menuId = useMatchedMenu('products');
   const {metadata,moduleData,c_metadata,definitions,loading,error} = useModuleMetaData(menuId);
@@ -94,15 +95,21 @@ const handleDelete =async (rowData) => {
 const renderRowActions = ({ row, rowKey }) => (
   <div className="sticky min-w-[28px] w-full right-0 z-10 bg-white border-l text-right p-2 group-hover:bg-gray-50 transition-colors">
     <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-in bg-white shadow rounded p-1 flex gap-2 z-10">
+    {canUser("products", "edit") && (
       <button onClick={() => handleEdit({ record_id: row[rowKey] })} className="text-blue-500 hover:text-blue-700 p-1">
         <Pencil size={16} />
       </button>
+    )}
+     {canUser("products", "view") && (
       <button title="Product Report" onClick={(e) =>{  e.stopPropagation(); navigate(`/product-report/${row[rowKey]}`);}} className="text-blue-900 hover:text-blue-700 p-1">
         <HistoryIcon size={16} />
       </button>
+     )}
+       {canUser("products", "delete") && (
       <button title="Delete" onClick={(e) =>{  e.stopPropagation(); handleDelete(row);}} className="text-red-500 hover:text-red-700 p-1">
         <Trash2 size={16} />
       </button>
+       )}
     </div>
   </div>
 );
@@ -176,6 +183,7 @@ useEffect(() => {
       <div className='flex justify-between items-center mb-4'>
         <h1 className="text-xl font-regular mb-4">{moduleData?.menuName}&nbsp;<small className='text-gray-500 text-xs'>{moduleData?.module_desc}</small></h1>
         <div className="flex gap-2">
+          {canUser("chargeserialnumber", "add") && (
           <button onClick={() => {
             // setShowForm(true)
              openProductCreate({},(result) => {
@@ -183,6 +191,7 @@ useEffect(() => {
   });
             } }
             className='p-1.5 pl-3 pr-3 bg-primary text-white rounded flex items-center'> <Plus className="inline mr-2" size={16} />Create</button>
+          )}  
         </div>
       </div>
       {metadata?.[0] && definitions?.length ? (
@@ -237,11 +246,17 @@ useEffect(() => {
         bulkeditfields={[]}
         skipFields={skipFields}
         columnMappings={columnLabels}
-        bulkActions={['active','inactive','delete']}
+       // bulkActions={['active','inactive','delete']}
+       bulkActions={[
+                  ...(canUser('products', 'active') ? ['active'] : []),
+                  ...(canUser('products', 'inactive') ? ['inactive'] : []),
+                 ...(canUser('products', 'delete') ? ['delete'] : [])
+               ]}
         bulkStatusAPI={`${API_BASE_URL}/multipleproductChangeStatus`}
         handleRefresh={refreshFilterList}
         handleEdit={handleEdit}
-        rowEdit={true}
+        //rowEdit={true}
+         rowEdit={canUser("products", "edit")}
         columnRenderers={{
         product_description: (row) => (
           <div className="flex gap-1 items-center">
